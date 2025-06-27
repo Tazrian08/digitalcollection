@@ -1,23 +1,13 @@
 export interface Product {
-  id: string;
+  id?: string; // Optional if your DB uses _id or id
   name: string;
-  brand: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviewCount: number;
-  image: string;
-  images: string[];
-  category: string;
-  subcategory: string;
   description: string;
-  features: string[];
-  specifications: Record<string, string>;
-  inStock: boolean;
-  stockCount: number;
-  isNew?: boolean;
-  isBestseller?: boolean;
-  compatibleWith?: string[];
+  price: number;
+  brand: string;
+  category: string;
+  compatibility: string[];
+  images: string[];
+  stock: number;
 }
 
 export interface CartItem {

@@ -41,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="relative overflow-hidden rounded-t-3xl">
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
           <img
-            src={product.image}
+            src={product.images[0]}
             alt={product.name}
             className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
           />
@@ -81,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Stock Status */}
           <div className="absolute bottom-4 left-4 z-20">
-            {product.inStock ? (
+            {product.stock > 0 ? (
               <div className="flex items-center space-x-2 bg-emerald-100/90 backdrop-blur-sm text-emerald-800 text-xs font-medium px-3 py-2 rounded-full shadow-lg">
                 <CheckCircle className="h-3 w-3" />
                 <span>In Stock</span>
@@ -131,11 +131,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="px-6 pb-6">
         <button
           onClick={handleAddToCart}
-          disabled={!product.inStock}
+          disabled={product.stock <= 0}
           className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 px-4 rounded-2xl hover:from-sky-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           <ShoppingCart className="h-5 w-5" />
-          <span>{product.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+          <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
         </button>
       </div>
     </div>
