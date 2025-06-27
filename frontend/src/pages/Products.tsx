@@ -1,17 +1,59 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, Grid, List, Sparkles } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { products, categories, brands } from '../data/products';
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+const categories = [
+  'All Categories',
+  'Camera',
+  'Lenses',
+  'Accessories',
+  'Lighting',
+  'Tripods',
+  'Storage'
+];
+
+const brands = [
+  'All Brands',
+  'Canon',
+  'Sony',
+  'Nikon',
+  'Fujifilm',
+  'Panasonic',
+  'Olympus'
+];
 
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-  
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const selectedCategory = searchParams.get('category') || 'All Categories';
   const selectedBrand = searchParams.get('brand') || 'All Brands';
   const sortBy = searchParams.get('sort') || 'name';
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch(`${apiBaseUrl}/api/products`);
+        if (!res.ok) throw new Error('Failed to fetch products');
+        const data = await res.json();
+        setProducts(data.products);
+      } catch (err: any) {
+        setError(err.message || 'Error fetching products');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
@@ -33,17 +75,13 @@ const Products: React.FC = () => {
           return a.price - b.price;
         case 'price-high':
           return b.price - a.price;
-        case 'rating':
-          return b.rating - a.rating;
-        case 'newest':
-          return b.isNew ? 1 : -1;
         default:
           return a.name.localeCompare(b.name);
       }
     });
 
     return filtered;
-  }, [selectedCategory, selectedBrand, sortBy]);
+  }, [products, selectedCategory, selectedBrand, sortBy]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -54,6 +92,22 @@ const Products: React.FC = () => {
     }
     setSearchParams(newParams);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loader"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-50">
