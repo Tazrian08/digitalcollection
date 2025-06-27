@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Truck, Shield, Headphones, Sparkles, Zap, Award } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { products } from '../data/products';
+
+import { Product } from '../types'; // Make sure this type exists
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 
 const Home: React.FC = () => {
-  const featuredProducts = products.filter(p => p.isBestseller).slice(0, 4);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch(`${apiBaseUrl}/api/products`);
+        if (!res.ok) throw new Error('Failed to fetch products');
+        const data = await res.json();
+        console.log('Fetched products:', data.products); // Debugging line
+        setProducts(data.products);
+      } catch (err: any) {
+        setError(err.message || 'Error fetching products');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const featuredProducts = products.slice(1, 5);
+
+  
 
   return (
     <div className="min-h-screen">
@@ -137,11 +166,17 @@ const Home: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {featuredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center text-lg text-gray-500">Loading products...</div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+              {featuredProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
           
           <div className="text-center">
             <Link
