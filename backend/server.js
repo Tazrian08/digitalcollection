@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
+const path = require('path');
 
 const app = express();
 
@@ -11,6 +12,9 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve images statically
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));

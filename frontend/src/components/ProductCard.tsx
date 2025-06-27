@@ -35,13 +35,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }).format(price);
   };
 
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL; // e.g., http://localhost:5000
+
+  const imagePath = product.images[0]?.replace(/\\/g, '/');
+  const imageUrl = imagePath ? `${apiBaseUrl}${imagePath}` : '/placeholder.jpg';
+
   return (
     <div className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 group overflow-hidden border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
       <Link to={`/product/${product.id}`} className="block">
         <div className="relative overflow-hidden rounded-t-3xl">
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
           <img
-            src={product.images[0]}
+            src={imageUrl}
             alt={product.name}
             className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
           />

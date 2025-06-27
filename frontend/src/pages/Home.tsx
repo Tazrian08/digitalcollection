@@ -32,7 +32,7 @@ const Home: React.FC = () => {
     fetchProducts();
   }, []);
 
-  const featuredProducts = products.slice(1, 5);
+  const featuredProducts = products.filter((_, i) => [1, 2, 3, 5].includes(i));
 
   
 

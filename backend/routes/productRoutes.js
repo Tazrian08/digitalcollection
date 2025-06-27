@@ -10,7 +10,7 @@ router.get('/:id', getProductById);
 // router.post('/', protect, createProduct);
 router.post('/',  createProduct);
 router.put('/:id', protect, updateProduct);
-router.delete('/:id', protect, deleteProduct);
+router.delete('/:id', deleteProduct);
 
 module.exports = router;
 
