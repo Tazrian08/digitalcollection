@@ -1,20 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingCart, Star, Check, Shield, Truck } from 'lucide-react';
-import { products } from '../data/products';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const product = products.find(p => p.id === id);
+  const [product, setProduct] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  if (!product) {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch(`${apiBaseUrl}/api/products/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch product');
+        const data = await res.json();
+        setProduct(data);
+      } catch (err: any) {
+        setError(err.message || 'Error fetching product');
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg text-gray-600">Loading product...</div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -31,7 +60,7 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  const isWishlisted = isInWishlist(product.id);
+  const isWishlisted = isInWishlist(product.id || product._id);
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
@@ -39,9 +68,9 @@ const ProductDetail: React.FC = () => {
 
   const handleWishlistToggle = () => {
     if (isWishlisted) {
-      removeFromWishlist(product.id);
+      removeFromWishlist(product.id || product._id);
     } else {
-      addToWishlist(product.id);
+      addToWishlist(product.id || product._id);
     }
   };
 
@@ -50,6 +79,14 @@ const ProductDetail: React.FC = () => {
       style: 'currency',
       currency: 'USD'
     }).format(price);
+  };
+
+  // Handle image paths (for local images)
+  const getImageUrl = (img: string) => {
+    if (!img) return '/placeholder.jpg';
+    if (img.startsWith('http')) return img;
+    const path = img.replace(/\\/g, '/');
+    return `${apiBaseUrl}${path}`;
   };
 
   return (
@@ -69,15 +106,15 @@ const ProductDetail: React.FC = () => {
           <div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
               <img
-                src={product.images[selectedImage]}
+                src={getImageUrl(product.images?.[selectedImage])}
                 alt={product.name}
                 className="w-full h-96 object-cover"
               />
             </div>
             
-            {product.images.length > 1 && (
+            {product.images && product.images.length > 1 && (
               <div className="flex space-x-4">
-                {product.images.map((image, index) => (
+                {product.images.map((image: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -86,7 +123,7 @@ const ProductDetail: React.FC = () => {
                     }`}
                   >
                     <img
-                      src={image}
+                      src={getImageUrl(image)}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -116,25 +153,6 @@ const ProductDetail: React.FC = () => {
 
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
 
-            {/* Rating */}
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-5 w-5 ${
-                      i < Math.floor(product.rating)
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-gray-600">
-                {product.rating} ({product.reviewCount} reviews)
-              </span>
-            </div>
-
             {/* Price */}
             <div className="flex items-center space-x-4 mb-6">
               <span className="text-3xl font-bold text-gray-900">
@@ -156,24 +174,26 @@ const ProductDetail: React.FC = () => {
             <p className="text-gray-700 mb-6">{product.description}</p>
 
             {/* Features */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
-              <ul className="space-y-2">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="flex items-center space-x-2">
-                    <Check className="h-4 w-4 text-green-600" />
-                    <span className="text-gray-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {product.features && product.features.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
+                <ul className="space-y-2">
+                  {product.features.map((feature: string, index: number) => (
+                    <li key={index} className="flex items-center space-x-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                      <span className="text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Compatibility */}
-            {product.compatibleWith && (
+            {product.compatibility && product.compatibility.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Compatibility</h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.compatibleWith.map((item, index) => (
+                  {product.compatibility.map((item: string, index: number) => (
                     <span
                       key={index}
                       className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
@@ -187,10 +207,10 @@ const ProductDetail: React.FC = () => {
 
             {/* Stock Status */}
             <div className="mb-6">
-              {product.inStock ? (
+              {product.stock > 0 ? (
                 <div className="flex items-center space-x-2 text-green-600">
                   <Check className="h-5 w-5" />
-                  <span className="font-medium">In Stock ({product.stockCount} available)</span>
+                  <span className="font-medium">In Stock ({product.stock} available)</span>
                 </div>
               ) : (
                 <div className="text-red-600 font-medium">Out of Stock</div>
@@ -205,9 +225,9 @@ const ProductDetail: React.FC = () => {
                   value={quantity}
                   onChange={(e) => setQuantity(Number(e.target.value))}
                   className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={!product.inStock}
+                  disabled={product.stock <= 0}
                 >
-                  {[...Array(Math.min(10, product.stockCount))].map((_, i) => (
+                  {[...Array(Math.min(10, product.stock))].map((_, i) => (
                     <option key={i + 1} value={i + 1}>
                       {i + 1}
                     </option>
@@ -219,7 +239,7 @@ const ProductDetail: React.FC = () => {
             <div className="flex space-x-4 mb-6">
               <button
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={product.stock <= 0}
                 className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -260,17 +280,19 @@ const ProductDetail: React.FC = () => {
         </div>
 
         {/* Specifications */}
-        <div className="mt-12 bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Specifications</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(product.specifications).map(([key, value]) => (
-              <div key={key} className="flex justify-between py-2 border-b border-gray-200">
-                <span className="font-medium text-gray-900">{key}</span>
-                <span className="text-gray-700">{value}</span>
-              </div>
-            ))}
+        {product.specifications && (
+          <div className="mt-12 bg-white rounded-lg shadow-md p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Specifications</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Object.entries(product.specifications).map(([key, value]) => (
+                <div key={key} className="flex justify-between py-2 border-b border-gray-200">
+                  <span className="font-medium text-gray-900">{key}</span>
+                  <span className="text-gray-700">{value}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-const Product = require('../models/Product');
+const Product = require('../models/Product'); // adjust path as needed
 
 // Get all products with optional search and pagination
 exports.getProducts = async (req, res) => {
@@ -83,5 +83,27 @@ exports.deleteProduct = async (req, res) => {
   } catch(error) {
     console.error(error);
     res.status(500).json({ message: 'Server error deleting product' });
+  }
+};
+
+// Search products by query
+exports.searchProducts = async (req, res) => {
+  try {
+    const q = (req.query.q || '').toLowerCase();
+    if (!q.trim()) {
+      return res.json({ products: [] });
+    }
+    const allProducts = await Product.find({});
+    const products = allProducts.filter(product => {
+      return (
+        (product.name && product.name.toLowerCase().includes(q)) ||
+        (product.brand && product.brand.toLowerCase().includes(q)) ||
+        (product.description && product.description.toLowerCase().includes(q)) ||
+        (product.category && product.category.toLowerCase().includes(q))
+      );
+    });
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
   }
 };

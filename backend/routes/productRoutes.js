@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getProducts, getProductById, createProduct, updateProduct, deleteProduct } = require('../controllers/productController');
+const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, searchProducts } = require('../controllers/productController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.get('/', getProducts);
 router.get('/:id', getProductById);
+router.get('/search', searchProducts);
 
 // Let's assume product management is restricted - protect middleware
 // router.post('/', protect, createProduct);
