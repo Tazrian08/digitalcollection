@@ -5,7 +5,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 router.get('/', getProducts);
 router.get('/:id', getProductById);
-router.get('/search', searchProducts);
+router.get('/query/search', searchProducts);
 
 // Let's assume product management is restricted - protect middleware
 // router.post('/', protect, createProduct);

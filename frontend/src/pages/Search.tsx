@@ -21,7 +21,7 @@ const Search: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${apiBaseUrl}/api/products/search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`${apiBaseUrl}/api/products/query/search?q=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error('Failed to fetch search results');
         const data = await res.json();
         setSearchResults(data.products || []);
@@ -33,6 +33,8 @@ const Search: React.FC = () => {
     };
     fetchResults();
   }, [query]);
+
+  console.log('Search results:', searchResults);
 
   return (
     <div className="min-h-screen bg-gray-50">

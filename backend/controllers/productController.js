@@ -102,7 +102,19 @@ exports.searchProducts = async (req, res) => {
         (product.category && product.category.toLowerCase().includes(q))
       );
     });
-    res.json({ products });
+
+    // Remove duplicates by _id
+    const uniqueProducts = [];
+    const seen = new Set();
+    for (const prod of products) {
+      const id = prod._id.toString();
+      if (!seen.has(id)) {
+        seen.add(id);
+        uniqueProducts.push(prod);
+      }
+    }
+
+    res.json({ products: uniqueProducts });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
