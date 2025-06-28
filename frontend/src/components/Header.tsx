@@ -34,6 +34,9 @@ const Header: React.FC = () => {
             </span>
           </Link>
 
+          {/* Spacer */}
+          <div className="flex-1" />
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="relative text-gray-700 hover:text-sky-600 transition-colors font-medium group">
@@ -46,6 +49,10 @@ const Header: React.FC = () => {
             </Link>
             <Link to="/contact" className="relative text-gray-700 hover:text-sky-600 transition-colors font-medium group">
               Contact
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-sky-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
+            </Link>
+             <Link to="/builder" className="relative text-gray-700 hover:text-sky-600 transition-colors font-medium group">
+              Builder
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-sky-400 to-blue-500 group-hover:w-full transition-all duration-300"></span>
             </Link>
           </nav>
