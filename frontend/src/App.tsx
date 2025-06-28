@@ -11,6 +11,7 @@ import Search from './pages/Search';
 import Auth from './pages/Auth';
 import Account from './pages/Account';
 import Contact from './pages/Contact';
+import Builder from './pages/Builder';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/signup" element={<Auth mode="signup" />} />
             <Route path="/account" element={<Account />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/builder" element={<Builder />} />
           </Routes>
         </main>
         <Footer />
