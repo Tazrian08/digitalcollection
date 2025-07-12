@@ -139,7 +139,7 @@ const Builder: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-2">
+                <div>
                   <button
                     onClick={() => {
                       const builderState = encodeURIComponent(JSON.stringify(selected));
@@ -148,12 +148,6 @@ const Builder: React.FC = () => {
                     className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:from-sky-600 hover:to-blue-700 transition"
                   >
                     Choose
-                  </button>
-                  <button
-                    onClick={() => handleAdd(section.key)}
-                    className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl font-semibold hover:bg-emerald-200 transition"
-                  >
-                    Add Sample
                   </button>
                 </div>
               )}
