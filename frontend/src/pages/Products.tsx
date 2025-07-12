@@ -36,6 +36,10 @@ const Products: React.FC = () => {
   const selectedCategory = searchParams.get('category') || 'All Categories';
   const selectedBrand = searchParams.get('brand') || 'All Brands';
   const sortBy = searchParams.get('sort') || 'name';
+  const fromBuilder = searchParams.get('fromBuilder') === '1';
+  const builderState = searchParams.get('builderState')
+    ? JSON.parse(decodeURIComponent(searchParams.get('builderState')!))
+    : {};
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -247,7 +251,13 @@ const Products: React.FC = () => {
                   : 'grid-cols-1'
               }`}>
                 {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id || product._id}
+                    product={product}
+                    fromBuilder={fromBuilder}
+                    builderCategory={selectedCategory}
+                    builderState={builderState}
+                  />
                 ))}
               </div>
             )}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Star, CheckCircle } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../hooks/useCart';
@@ -7,12 +7,21 @@ import { useWishlist } from '../hooks/useWishlist';
 
 interface ProductCardProps {
   product: Product;
+  fromBuilder?: boolean;
+  builderCategory?: string;
+  builderState?: any;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  fromBuilder,
+  builderCategory,
+  builderState
+}) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const isWishlisted = isInWishlist(product.id);
+  const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,6 +35,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     } else {
       addToWishlist(product.id);
     }
+  };
+
+  const handleAddToBuilder = () => {
+    // Update builderState with selected product
+    const updatedBuilder = {
+      ...builderState,
+      [builderCategory?.toLowerCase()]: {
+        id: product.id || product._id,
+        name: product.name,
+        price: product.price,
+        images: product.images,
+      }
+    };
+    const builderStateStr = encodeURIComponent(JSON.stringify(updatedBuilder));
+    navigate(`/builder?builderState=${builderStateStr}`);
   };
 
   const formatPrice = (price: number) => {
@@ -142,6 +166,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <ShoppingCart className="h-5 w-5" />
           <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
         </button>
+
+        {/* Add to Builder button */}
+        {fromBuilder && (
+          <button
+            onClick={handleAddToBuilder}
+            className="mt-4 w-full bg-gradient-to-r from-emerald-500 to-blue-600 text-white py-2 rounded-xl font-semibold shadow hover:from-emerald-600 hover:to-blue-700 transition"
+          >
+            Add to Builder
+          </button>
+        )}
       </div>
     </div>
   );

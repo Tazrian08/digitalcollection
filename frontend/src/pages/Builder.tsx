@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, CameraOff, Aperture, Flashlight, HardDrive, Layers, PackageCheck, ShoppingCart } from 'lucide-react';
 
 const builderSections = [
@@ -48,17 +48,37 @@ interface BuilderProduct {
   images: string[];
 }
 
-const Builder: React.FC = () => {
-  const [selected, setSelected] = useState<{ [key: string]: BuilderProduct | null }>({
+const getInitialBuilderState = () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('builderState')) {
+    return JSON.parse(decodeURIComponent(params.get('builderState')!));
+  }
+  const saved = localStorage.getItem('builderState');
+  if (saved) return JSON.parse(saved);
+  return {
     camera: null,
     lens: null,
     accessory: null,
     lighting: null,
     tripod: null,
     storage: null,
-  });
+  };
+};
+
+const Builder: React.FC = () => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const builderStateFromUrl = params.get('builderState')
+    ? JSON.parse(decodeURIComponent(params.get('builderState')!))
+    : null;
+
+  const [selected, setSelected] = useState<{ [key: string]: BuilderProduct | null }>(getInitialBuilderState());
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem('builderState', JSON.stringify(selected));
+  }, [selected]);
 
   // Simulate selecting a product (in real app, use context or pass via route state)
   const handleAdd = (sectionKey: string) => {
@@ -121,7 +141,10 @@ const Builder: React.FC = () => {
               ) : (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => navigate(section.route)}
+                    onClick={() => {
+                      const builderState = encodeURIComponent(JSON.stringify(selected));
+                      navigate(`${section.route}&fromBuilder=1&builderState=${builderState}`);
+                    }}
                     className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:from-sky-600 hover:to-blue-700 transition"
                   >
                     Choose
