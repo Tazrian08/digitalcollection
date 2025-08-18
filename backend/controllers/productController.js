@@ -1,4 +1,6 @@
 const Product = require('../models/Product'); // adjust path as needed
+const fs = require('fs');
+const path = require('path');
 
 // Get all products with optional search and pagination
 exports.getProducts = async (req, res) => {
@@ -43,15 +45,43 @@ exports.getProductById = async (req, res) => {
 // Add new product (admin level - here no admin role implemented but can be extended)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, brand, category, compatibility, images, stock } = req.body;
+    const { name, description, price, brand, category, stock } = req.body;
+    // compatibility left empty
+    const compatibility = [];
+    // Create folder for images
+    const folderName = `images/${name}`;
+    const imagesDir = path.join(__dirname, '..', folderName);
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+    }
+    // Save images
+    let imagePaths = [];
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file, idx) => {
+        const ext = path.extname(file.originalname) || '.jpg';
+        const imgName = `${idx + 1}${ext}`;
+        const imgPath = path.join(imagesDir, imgName);
+        fs.writeFileSync(imgPath, file.buffer);
+        // Use double backslash in the returned path
+    const relativePath = folderName.replace(/\//g, '\\') + '\\' + imgName;
+    imagePaths.push(`\\${relativePath}`);
+      });
+    }
+    // Create product
     const product = new Product({
-      name, description, price, brand, category, compatibility, images, stock
+      name,
+      description,
+      price,
+      brand,
+      category,
+      compatibility,
+      images: imagePaths,
+      stock: stock || 0
     });
     await product.save();
     res.status(201).json(product);
-  } catch(error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error creating product' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
