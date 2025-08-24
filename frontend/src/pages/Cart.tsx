@@ -1,10 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Gift } from 'lucide-react';
-import { useCart } from '../hooks/useCart';
+import { useAuth } from '../context/AuthContext';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const Cart: React.FC = () => {
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
+  const { token } = useAuth();
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch(`${apiBaseUrl}/api/cart`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setCartItems(data.items || []);
+      } catch {
+        setCartItems([]);
+      }
+      setLoading(false);
+    };
+    fetchCart();
+  }, [token]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -17,6 +37,10 @@ const Cart: React.FC = () => {
     if (newQuantity < 1) return;
     updateQuantity(productId, newQuantity);
   };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   if (cartItems.length === 0) {
     return (

@@ -4,6 +4,7 @@ import { Heart, ShoppingCart, Star, CheckCircle } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
+import { useAuth } from '../context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -20,12 +21,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { token } = useAuth(); // get token for auth
   const isWishlisted = isInWishlist(product.id);
   const navigate = useNavigate();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart(product);
+    if (!token) {
+      alert('Please sign in to add items to your cart.');
+      return;
+    }
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ productId: product._id, quantity: 1 })
+      });
+      if (!res.ok) throw new Error('Failed to add to cart');
+      // Optionally, update cart state here
+      alert('Added to cart!');
+    } catch (err) {
+      alert('Error adding to cart');
+    }
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
