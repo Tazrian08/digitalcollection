@@ -27,15 +27,77 @@ const Cart: React.FC = () => {
   }, [token]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
+    return price.toLocaleString();
+  };
+
+  // Update quantity of a cart item
+  const updateQuantity = async (productId: string, newQuantity: number) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ productId, quantity: newQuantity })
+      });
+      const data = await res.json();
+      setCartItems(data.items || []);
+    } catch {
+      // Optionally show error
+    }
+  };
+
+  // Remove item from cart
+  const removeFromCart = async (productId: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/cart/${productId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setCartItems(data.items || []);
+    } catch {
+      // Optionally show error
+    }
+  };
+
+  // Clear the entire cart
+  const clearCart = async () => {
+    if (!token) return;
+    try {
+      // Remove each item one by one
+      for (const item of cartItems) {
+        await fetch(`${apiBaseUrl}/api/cart/${item.product.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+      setCartItems([]);
+    } catch {
+      // Optionally show error
+    }
+  };
+
+  // Get cart total
+  const getCartTotal = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.product.price * item.quantity,
+      0
+    );
   };
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     updateQuantity(productId, newQuantity);
+  };
+
+  const getImageUrl = (product: any) => {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+    const imagePath = product.images?.[0]?.replace(/\\/g, '/');
+    return imagePath ? `${apiBaseUrl}${imagePath}` : '/placeholder.jpg';
   };
 
   if (loading) {
@@ -88,11 +150,11 @@ const Cart: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-sky-200">
               {cartItems.map((item, index) => (
-                <div key={item.product.id} className={`p-8 ${index !== cartItems.length - 1 ? 'border-b border-sky-100' : ''}`}>
+                <div key={item.product._id} className={`p-8 ${index !== cartItems.length - 1 ? 'border-b border-sky-100' : ''}`}>
                   <div className="flex items-center space-x-6">
                     <div className="relative">
                       <img
-                        src={item.product.image}
+                        src={getImageUrl(item.product)}
                         alt={item.product.name}
                         className="w-24 h-24 object-cover rounded-2xl shadow-md"
                       />
@@ -100,7 +162,7 @@ const Cart: React.FC = () => {
                     
                     <div className="flex-1">
                       <Link
-                        to={`/product/${item.product.id}`}
+                        to={`/product/${item.product._id}`}
                         className="text-xl font-bold text-gray-900 hover:text-sky-600 transition-colors block mb-2"
                       >
                         {item.product.name}
@@ -113,7 +175,7 @@ const Cart: React.FC = () => {
 
                     <div className="flex items-center space-x-4 bg-sky-50 rounded-2xl p-3">
                       <button
-                        onClick={() => handleQuantityChange(item.product.id, item.quantity - 1)}
+                        onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
                         className="p-2 rounded-xl hover:bg-sky-100 transition-colors text-sky-600 hover:text-sky-700"
                       >
                         <Minus className="h-4 w-4" />
@@ -122,7 +184,7 @@ const Cart: React.FC = () => {
                       <span className="w-12 text-center font-bold text-lg text-gray-800">{item.quantity}</span>
                       
                       <button
-                        onClick={() => handleQuantityChange(item.product.id, item.quantity + 1)}
+                        onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
                         className="p-2 rounded-xl hover:bg-sky-100 transition-colors text-sky-600 hover:text-sky-700"
                       >
                         <Plus className="h-4 w-4" />
@@ -134,7 +196,15 @@ const Cart: React.FC = () => {
                         {formatPrice(item.product.price * item.quantity)}
                       </p>
                       <button
-                        onClick={() => removeFromCart(item.product.id)}
+                        onClick={async () => {
+                          await removeFromCart(item.product._id);
+                          // Refetch cart to update UI
+                          const res = await fetch(`${apiBaseUrl}/api/cart`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                          });
+                          const data = await res.json();
+                          setCartItems(data.items || []);
+                        }}
                         className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-xl"
                       >
                         <Trash2 className="h-5 w-5" />
@@ -160,42 +230,17 @@ const Cart: React.FC = () => {
                 </div>
                 <div className="flex justify-between text-lg">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-bold">
-                    {getCartTotal() > 500 ? (
-                      <span className="text-emerald-600">Free</span>
-                    ) : (
-                      formatPrice(29.99)
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between text-lg">
-                  <span className="text-gray-600">Tax</span>
-                  <span className="font-bold">{formatPrice(getCartTotal() * 0.08)}</span>
+                  <span className="font-bold">{formatPrice(60)}</span>
                 </div>
                 <div className="border-t border-sky-200 pt-4">
                   <div className="flex justify-between text-xl">
                     <span className="font-bold">Total</span>
                     <span className="font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-                      {formatPrice(
-                        getCartTotal() + 
-                        (getCartTotal() > 500 ? 0 : 29.99) + 
-                        (getCartTotal() * 0.08)
-                      )}
+                      {formatPrice(getCartTotal() + 60)}
                     </span>
                   </div>
                 </div>
               </div>
-
-              {getCartTotal() > 500 && (
-                <div className="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-2xl p-4 mb-6">
-                  <div className="flex items-center space-x-2">
-                    <Gift className="h-5 w-5 text-emerald-600" />
-                    <p className="text-emerald-800 font-bold">
-                      🎉 You qualify for free shipping!
-                    </p>
-                  </div>
-                </div>
-              )}
 
               <button className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-4 px-6 rounded-2xl hover:from-sky-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 mb-4">
                 Proceed to Checkout

@@ -73,10 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
+    return price.toLocaleString(); // Shows e.g. 1,234
   };
 
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL; // e.g., http://localhost:5000

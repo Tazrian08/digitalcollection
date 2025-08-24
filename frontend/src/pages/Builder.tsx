@@ -130,7 +130,7 @@ const Builder: React.FC = () => {
               {selected[section.key] ? (
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <span className="font-medium text-sky-700">{selected[section.key]?.name}</span>
-                  <span className="font-bold text-blue-700">${selected[section.key]?.price.toFixed(2)}</span>
+                  <span className="font-bold text-blue-700">{selected[section.key]?.price.toFixed(2)}</span>
                   <button
                     onClick={() => handleRemove(section.key)}
                     className="bg-red-100 text-red-700 px-4 py-2 rounded-xl font-semibold hover:bg-red-200 transition"
@@ -159,7 +159,7 @@ const Builder: React.FC = () => {
           <div className="inline-flex items-center space-x-2 bg-white/90 backdrop-blur-sm px-6 py-4 rounded-2xl border border-sky-200 shadow-lg">
             <span className="text-xl font-bold text-sky-700">Current Total:</span>
             <span className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-              ${total.toFixed(2)}
+              {total.toFixed(2)}
             </span>
           </div>
         </div>
