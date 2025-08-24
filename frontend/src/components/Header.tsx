@@ -43,7 +43,7 @@ const Header: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
               <Camera className="relative h-10 w-10 text-sky-600 group-hover:text-sky-700 transition-colors" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
+            <span className="hidden md:inline text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
               DigitalCollection
             </span>
           </Link>
