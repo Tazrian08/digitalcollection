@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Heart, User, Menu, X, Camera } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../context/AuthContext'; // <-- Add this
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false); // <-- Add this
   const navigate = useNavigate();
   const { getCartItemCount } = useCart();
+  const { user, logout } = useAuth(); // <-- Add this
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +21,17 @@ const Header: React.FC = () => {
   };
 
   const cartItemCount = getCartItemCount();
+
+  // Dropdown menu for account
+  const handleAccountClick = () => {
+    setDropdownOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setDropdownOpen(false);
+    navigate('/');
+  };
 
   return (
     <header className="bg-gradient-to-r from-sky-50 to-blue-50 shadow-xl sticky top-0 z-50 backdrop-blur-sm border-b border-sky-200">
@@ -96,12 +110,53 @@ const Header: React.FC = () => {
               )}
             </Link>
 
-            <Link
-              to="/account"
-              className="p-3 text-gray-700 hover:text-sky-600 transition-all duration-300 hover:bg-sky-100 rounded-xl group"
-            >
-              <User className="h-6 w-6 group-hover:scale-110 transition-transform" />
-            </Link>
+            {/* Account Dropdown */}
+            <div className="relative">
+              <button
+                onClick={handleAccountClick}
+                className="p-3 text-gray-700 hover:text-sky-600 transition-all duration-300 hover:bg-sky-100 rounded-xl group"
+              >
+                <User className="h-6 w-6 group-hover:scale-110 transition-transform" />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  {!user ? (
+                    <div className="py-2">
+                      <Link
+                        to="/signin"
+                        className="block px-4 py-2 text-gray-700 hover:bg-sky-50"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="block px-4 py-2 text-gray-700 hover:bg-sky-50"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      <Link
+                        to="/account"
+                        className="block px-4 py-2 text-gray-700 hover:bg-sky-50"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Account
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-sky-50"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <button
