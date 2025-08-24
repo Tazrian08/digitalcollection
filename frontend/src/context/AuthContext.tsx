@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 interface User {
+  address: string;
+  phone: string;
   _id: string;
   name: string;
   email: string;
@@ -14,6 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, phone?: string, address?: string) => Promise<void>;
   logout: () => void;
+  fetchUser: () => Promise<void>; // <-- Add this line
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   const fetchUser = async () => {
+    if (!token || typeof token !== 'string' || token.trim() === '') {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`${apiBaseUrl}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -63,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!res.ok) throw new Error('Invalid credentials');
     const data = await res.json();
     setToken(data.token);
+    console.log('Storing token:', data.token);
     localStorage.setItem('token', data.token);
     await fetchUser();
   };
@@ -88,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, fetchUser }}>
       {children}
     </AuthContext.Provider>
   );
