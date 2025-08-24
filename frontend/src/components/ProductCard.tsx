@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Star, CheckCircle } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../hooks/useCart';
-import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../context/AuthContext';
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 interface ProductCardProps {
   product: Product;
@@ -20,9 +21,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   builderState
 }) => {
   const { addToCart } = useCart();
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { token } = useAuth(); // get token for auth
-  const isWishlisted = isInWishlist(product.id);
+  const { token } = useAuth();
   const navigate = useNavigate();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -41,28 +40,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
         body: JSON.stringify({ productId: product._id, quantity: 1 })
       });
       if (!res.ok) throw new Error('Failed to add to cart');
-      // Optionally, update cart state here
       alert('Added to cart!');
     } catch (err) {
       alert('Error adding to cart');
     }
   };
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (isWishlisted) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product.id);
-    }
-  };
-
   const handleAddToBuilder = () => {
-    // Update builderState with selected product
     const updatedBuilder = {
       ...builderState,
       [builderCategory?.toLowerCase()]: {
-        id: product.id || product._id,
+        id: product._id,
         name: product.name,
         price: product.price,
         images: product.images,
@@ -73,12 +61,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString(); // Shows e.g. 1,234
+    return price.toLocaleString();
   };
 
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL; // e.g., http://localhost:5000
-
-  const imagePath = product.images[0]?.replace(/\\/g, '/');
+  const imagePath = product.images && product.images[0]
+    ? product.images[0].replace(/\\/g, '/')
+    : '';
   const imageUrl = imagePath ? `${apiBaseUrl}${imagePath}` : '/placeholder.jpg';
 
   return (
@@ -91,39 +79,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             alt={product.name}
             className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
           />
-          
-          {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-col space-y-2 z-20">
-            {product.isNew && (
-              <span className="bg-gradient-to-r from-emerald-400 to-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
-                New
-              </span>
-            )}
-            {product.isBestseller && (
-              <span className="bg-gradient-to-r from-orange-400 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                Bestseller
-              </span>
-            )}
-            {product.originalPrice && (
-              <span className="bg-gradient-to-r from-red-400 to-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                Sale
-              </span>
-            )}
-          </div>
-
-          {/* Quick Actions */}
-          <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0 z-20">
-            <button
-              onClick={handleWishlistToggle}
-              className={`p-3 rounded-full backdrop-blur-sm transition-all duration-300 shadow-lg hover:scale-110 ${
-                isWishlisted
-                  ? 'bg-red-500 text-white'
-                  : 'bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white'
-              }`}
-            >
-              <Heart className="h-4 w-4" fill={isWishlisted ? 'currentColor' : 'none'} />
-            </button>
-          </div>
 
           {/* Stock Status */}
           <div className="absolute bottom-4 left-4 z-20">
@@ -146,7 +101,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="flex items-center space-x-1">
               <Star className="h-4 w-4 text-yellow-400 fill-current" />
               <span className="text-sm text-gray-600 font-medium">
-                {product.rating} ({product.reviewCount})
+                {/* {product.rating} */}
               </span>
             </div>
           </div>
@@ -164,11 +119,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <span className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
                 {formatPrice(product.price)}
               </span>
-              {product.originalPrice && (
-                <span className="text-sm text-gray-500 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
             </div>
           </div>
         </div>

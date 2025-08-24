@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingCart, Star, Check, Shield, Truck } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
+import { useAuth } from '../context/AuthContext'; // Add this import
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,6 +17,7 @@ const ProductDetail: React.FC = () => {
 
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { token } = useAuth(); // Add this line
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -62,8 +64,25 @@ const ProductDetail: React.FC = () => {
 
   const isWishlisted = isInWishlist(product.id || product._id);
 
-  const handleAddToCart = () => {
-    addToCart(product, quantity);
+  const handleAddToCart = async () => {
+    if (!token) {
+      alert('Please sign in to add items to your cart.');
+      return;
+    }
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ productId: product._id, quantity })
+      });
+      if (!res.ok) throw new Error('Failed to add to cart');
+      alert('Added to cart!');
+    } catch (err) {
+      alert('Error adding to cart');
+    }
   };
 
   const handleWishlistToggle = () => {

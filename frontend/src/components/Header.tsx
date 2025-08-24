@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Menu, X, Camera } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, Camera } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../context/AuthContext'; // <-- Add this
 
@@ -91,13 +91,6 @@ const Header: React.FC = () => {
 
           {/* Action Icons */}
           <div className="flex items-center space-x-2">
-            <Link
-              to="/wishlist"
-              className="p-3 text-gray-700 hover:text-sky-600 transition-all duration-300 hover:bg-sky-100 rounded-xl group"
-            >
-              <Heart className="h-6 w-6 group-hover:scale-110 transition-transform" />
-            </Link>
-            
             <Link
               to="/cart"
               className="p-3 text-gray-700 hover:text-sky-600 transition-all duration-300 hover:bg-sky-100 rounded-xl relative group"

@@ -1,4 +1,5 @@
 export interface Product {
+  _id?: string;
   id?: string; // Optional if your DB uses _id or id
   name: string;
   description: string;
