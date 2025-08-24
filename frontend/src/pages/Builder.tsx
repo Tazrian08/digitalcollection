@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, CameraOff, Aperture, Flashlight, HardDrive, Layers, PackageCheck, ShoppingCart } from 'lucide-react';
+import { useAuth } from '../context/AuthContext'; // Add this import at the top
 
 const builderSections = [
   {
@@ -19,7 +20,7 @@ const builderSections = [
     key: 'accessory',
     label: 'Accessory',
     icon: <PackageCheck className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Accessories',
+    route: '/products?category=Accessory',
   },
   {
     key: 'lighting',
@@ -73,6 +74,7 @@ const Builder: React.FC = () => {
     : null;
 
   const [selected, setSelected] = useState<{ [key: string]: BuilderProduct | null }>(getInitialBuilderState());
+  const { token } = useAuth(); // Add this line
 
   const navigate = useNavigate();
 
@@ -100,6 +102,36 @@ const Builder: React.FC = () => {
       ...prev,
       [sectionKey]: null,
     }));
+  };
+
+  const handleAddAllToCart = async () => {
+    if (!token) {
+      alert('Please sign in to add items to your cart.');
+      return;
+    }
+    let added = 0;
+    for (const item of Object.values(selected)) {
+      if (item) {
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/cart`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ productId: item.id, quantity: 1 })
+          });
+          if (res.ok) added++;
+        } catch {
+          // Optionally handle error per item
+        }
+      }
+    }
+    if (added > 0) {
+      alert('All selected items added to cart!');
+    } else {
+      alert('No items were added.');
+    }
   };
 
   const total = Object.values(selected).reduce((sum, item) => sum + (item ? item.price : 0), 0);
@@ -162,6 +194,15 @@ const Builder: React.FC = () => {
               {total.toFixed(2)}
             </span>
           </div>
+        </div>
+        {/* Add To Cart Button */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={handleAddAllToCart}
+            className="bg-gradient-to-r from-sky-500 to-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:from-sky-600 hover:to-blue-700 transition-all duration-300"
+          >
+            Add All To Cart
+          </button>
         </div>
       </div>
     </div>

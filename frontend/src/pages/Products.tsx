@@ -9,7 +9,7 @@ const categories = [
   'All Categories',
   'Camera',
   'Lenses',
-  'Accessories',
+  'Accessory',
   'Lighting',
   'Tripods',
   'Storage'
