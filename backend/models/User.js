@@ -18,6 +18,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phone: {
+    type: String,
+    required: false,
+    trim: true,
+  },
+  address: {
+    type: String,
+    required: false,
+    trim: true,
+  },
   myList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   createdAt: {
     type: Date,

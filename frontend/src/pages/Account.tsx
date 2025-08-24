@@ -1,8 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Package, Heart, Settings, MapPin, CreditCard } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const Account: React.FC = () => {
+  const { user, token, fetchUser } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      });
+    }
+  }, [user]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(form)
+      });
+      if (!res.ok) throw new Error('Failed to update profile');
+      await fetchUser();
+      setMessage('Profile updated successfully!');
+    } catch (err: any) {
+      setMessage(err.message || 'Error updating profile');
+    }
+    setLoading(false);
+  };
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
@@ -19,54 +67,63 @@ const Account: React.FC = () => {
         return (
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name
+                    Name
                   </label>
                   <input
+                    name="name"
                     type="text"
-                    defaultValue="John"
+                    value={form.name}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name
+                    Email Address
                   </label>
                   <input
-                    type="text"
-                    defaultValue="Doe"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  defaultValue="john.doe@example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Phone Number
                 </label>
                 <input
+                  name="phone"
                   type="tel"
-                  defaultValue="+1 (555) 123-4567"
+                  value={form.phone}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <textarea
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              {message && <div className="text-green-600">{message}</div>}
               <button
                 type="submit"
+                disabled={loading}
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
               >
-                Save Changes
+                {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </form>
           </div>

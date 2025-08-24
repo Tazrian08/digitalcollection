@@ -6,7 +6,7 @@ const generateToken = (id) => {
 };
 
 exports.registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone, address } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -14,13 +14,15 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password, phone, address});
     await user.save();
 
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      address: user.address,
       token: generateToken(user._id)
     });
   } catch (error) {
@@ -39,6 +41,8 @@ exports.loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
         token: generateToken(user._id)
       });
     } else {

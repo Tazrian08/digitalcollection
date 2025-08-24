@@ -10,20 +10,25 @@ exports.getUserProfile = async (req, res) => {
 exports.updateUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if(!user) return res.status(404).json({ message: "User not found" });
+    const { name, email, phone, address } = req.body;
 
-    const { name, email, password } = req.body;
-
-    if(name) user.name = name;
-    if(email) user.email = email;
-    if(password) user.password = password; // will be hashed in model pre save hook
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
 
     await user.save();
 
-    res.json({ _id: user._id, name: user.name, email: user.email });
-
-  } catch(error) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error updating profile" });
   }
