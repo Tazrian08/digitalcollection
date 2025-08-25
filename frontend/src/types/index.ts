@@ -48,3 +48,13 @@ export interface WishlistItem {
   productId: string;
   addedAt: Date;
 }
+
+export interface Ad {
+  _id: string;
+  title: string;
+  subtitle?: string;
+  image: string;
+  link?: string;
+  active: boolean;
+  createdAt: Date;
+}
