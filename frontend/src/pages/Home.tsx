@@ -196,7 +196,7 @@ const Home: React.FC = () => {
             </Link>
             
             <Link
-              to="/products?category=Accessories"
+              to="/products?category=Accessory"
               className="group relative bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2"
             >
               <div className="relative overflow-hidden">

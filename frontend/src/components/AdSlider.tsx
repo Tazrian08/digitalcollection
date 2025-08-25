@@ -38,7 +38,7 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
 
     const interval = setInterval(() => {
       goToNext();
-    }, 5000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, [currentIndex, ads.length]);
