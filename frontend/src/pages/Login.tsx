@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      navigate('/account');
+    }
+  }, [user, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +23,10 @@ const Login: React.FC = () => {
     setError('');
     try {
       await login(form.email, form.password);
-      navigate('/account');
+      // Wait for user to be set before navigating
+      setTimeout(() => {
+        navigate('/account');
+      }, 100); // Small delay to ensure context updates
     } catch (err: any) {
       setError(err.message || 'Login failed');
     }

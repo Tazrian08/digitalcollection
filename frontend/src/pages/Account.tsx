@@ -55,7 +55,7 @@ const Account: React.FC = () => {
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
     { id: 'orders', name: 'Orders', icon: Package },
-    { id: 'wishlist', name: 'Wishlist', icon: Heart },
+    // { id: 'wishlist', name: 'Wishlist', icon: Heart },
     { id: 'addresses', name: 'Addresses', icon: MapPin },
     { id: 'payment', name: 'Payment Methods', icon: CreditCard },
     { id: 'settings', name: 'Settings', icon: Settings },
