@@ -21,7 +21,7 @@ const Home: React.FC = () => {
         const res = await fetch(`${apiBaseUrl}/api/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
         const data = await res.json();
-        console.log('Fetched products:', data.products); // Debugging line
+
         setProducts(data.products);
       } catch (err: any) {
         setError(err.message || 'Error fetching products');

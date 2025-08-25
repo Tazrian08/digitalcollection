@@ -1,37 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const AddAdmin: React.FC = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const { user, token } = useAuth();
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phone: '',
+    address: ''
+  });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const token = localStorage.getItem('adminToken');
-      if (!token) {
-        navigate('/admin/login');
-        return;
-      }
-      try {
-        const res = await fetch(`${apiBaseUrl}/api/users/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (!data.isAdmin) {
-          navigate('/admin/login');
-        }
-      } catch {
-        navigate('/admin/login');
-      }
-    };
-    checkAdmin();
-  }, [navigate]);
+    if (!user || !user.isAdmin) {
+      navigate('/account');
+    }
+  }, [user, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -40,7 +32,6 @@ const AddAdmin: React.FC = () => {
     setError('');
     setSuccess('');
     try {
-      const token = localStorage.getItem('adminToken');
       const res = await fetch(`${apiBaseUrl}/api/auth/admin/add`, {
         method: 'POST',
         headers: {
@@ -52,7 +43,10 @@ const AddAdmin: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to add admin');
       setSuccess('Admin added successfully!');
-      setForm({ name: '', email: '', password: '' });
+      setForm({ name: '', email: '', password: '', phone: '', address: '' });
+      setTimeout(() => {
+        navigate('/signin');
+      }, 1000);
     } catch (err: any) {
       setError(err.message || 'Failed to add admin');
     }
@@ -65,6 +59,8 @@ const AddAdmin: React.FC = () => {
         <input name="name" type="text" placeholder="Name" value={form.name} onChange={handleChange} required className="w-full px-3 py-2 border rounded" />
         <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required className="w-full px-3 py-2 border rounded" />
         <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required className="w-full px-3 py-2 border rounded" />
+        <input name="phone" type="text" placeholder="Phone Number" value={form.phone} onChange={handleChange} className="w-full px-3 py-2 border rounded" />
+        <textarea name="address" placeholder="Address" value={form.address} onChange={handleChange} className="w-full px-3 py-2 border rounded" />
         {error && <div className="text-red-500">{error}</div>}
         {success && <div className="text-green-500">{success}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Add Admin</button>

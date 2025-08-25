@@ -77,7 +77,7 @@ exports.adminLogin = async (req, res) => {
 };
 
 exports.addAdmin = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone, address } = req.body;
   try {
     // Only allow if current user is admin
     if (!req.user || !req.user.isAdmin) {
@@ -87,12 +87,21 @@ exports.addAdmin = async (req, res) => {
     if (userExists) {
       return res.status(400).json({ message: 'Admin already exists' });
     }
-    const admin = new User({ name, email, password, isAdmin: true });
+    const admin = new User({
+      name,
+      email,
+      password,
+      phone,
+      address,
+      isAdmin: true
+    });
     await admin.save();
     res.status(201).json({
       _id: admin._id,
       name: admin.name,
       email: admin.email,
+      phone: admin.phone,
+      address: admin.address,
       isAdmin: admin.isAdmin
     });
   } catch (error) {

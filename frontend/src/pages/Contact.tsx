@@ -12,7 +12,7 @@ const Contact: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
-    console.log('Contact form submitted:', formData);
+    // console.log('Contact form submitted:', formData);
     // Reset form
     setFormData({ name: '', email: '', subject: '', message: '' });
   };

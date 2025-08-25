@@ -34,7 +34,7 @@ const Search: React.FC = () => {
     fetchResults();
   }, [query]);
 
-  console.log('Search results:', searchResults);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
