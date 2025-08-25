@@ -17,6 +17,8 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import AdminLogin from './pages/AdminLogin';
+import AddAdmin from './pages/AddAdmin';
 
 function App() {
   return (
@@ -42,6 +44,8 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/builder" element={<Builder />} />
               <Route path="/addproduct" element={<AddProduct />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/add" element={<AddAdmin />} />
             </Routes>
           </main>
           <Footer />

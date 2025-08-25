@@ -29,7 +29,11 @@ const userSchema = new mongoose.Schema({
     required: false,
     trim: true,
   },
-  myList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  myOrder: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now

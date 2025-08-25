@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { User, Package, Heart, Settings, MapPin, CreditCard } from 'lucide-react';
+import { User, Package, Heart, Settings, MapPin, CreditCard, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const Account: React.FC = () => {
   const { user, token, fetchUser } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [form, setForm] = useState({
     name: '',
@@ -52,14 +54,17 @@ const Account: React.FC = () => {
     setLoading(false);
   };
 
-  const tabs = [
-    { id: 'profile', name: 'Profile', icon: User },
-    { id: 'orders', name: 'Orders', icon: Package },
-    // { id: 'wishlist', name: 'Wishlist', icon: Heart },
-    { id: 'addresses', name: 'Addresses', icon: MapPin },
-    { id: 'payment', name: 'Payment Methods', icon: CreditCard },
-    { id: 'settings', name: 'Settings', icon: Settings },
-  ];
+  // Tabs logic
+  const tabs = user?.isAdmin
+    ? [
+        { id: 'profile', name: 'Profile', icon: User },
+        { id: 'registerAdmin', name: 'Register Admin', icon: ShieldCheck },
+        { id: 'addProduct', name: 'Add Product', icon: Package },
+      ]
+    : [
+        { id: 'profile', name: 'Profile', icon: User },
+        { id: 'orders', name: 'Orders', icon: Package },
+      ];
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -106,17 +111,6 @@ const Account: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <textarea
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
               {message && <div className="text-green-600">{message}</div>}
               <button
                 type="submit"
@@ -146,12 +140,17 @@ const Account: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-gray-700">Canon EOS R5 + RF 24-70mm f/2.8L</p>
-                  <p className="font-semibold text-lg">$6,198.00</p>
+                  <p className="font-semibold text-lg">6,198.00</p>
                 </div>
               ))}
             </div>
           </div>
         );
+
+      case 'registerAdmin':
+        // Redirect to /admin/add
+        window.location.href = '/admin/add';
+        return null;
 
       default:
         return (
@@ -168,8 +167,15 @@ const Account: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Account</h1>
-
+        <div className="flex items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
+          {user?.isAdmin && (
+            <span className="ml-4 inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-sky-500 text-white text-sm font-semibold shadow">
+              <ShieldCheck className="h-4 w-4 mr-1" />
+              Admin
+            </span>
+          )}
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
@@ -180,7 +186,15 @@ const Account: React.FC = () => {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => {
+                        if (tab.id === 'registerAdmin') {
+                          navigate('/admin/add');
+                        } else if (tab.id === 'addProduct') {
+                          navigate('/addproduct');
+                        } else {
+                          setActiveTab(tab.id);
+                        }
+                      }}
                       className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
                         activeTab === tab.id
                           ? 'bg-blue-100 text-blue-700'
@@ -195,7 +209,6 @@ const Account: React.FC = () => {
               </nav>
             </div>
           </div>
-
           {/* Main Content */}
           <div className="lg:col-span-3">
             {renderTabContent()}

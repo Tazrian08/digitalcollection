@@ -18,6 +18,7 @@ export interface CartItem {
 
 export interface User {
   id: string;
+  isAdmin: boolean;
   email: string;
   firstName: string;
   lastName: string;
