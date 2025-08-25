@@ -8,7 +8,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const categories = [
   'All Categories',
   'Camera',
-  'Lenses',
+  'Lens',
   'Accessory',
   'Lighting',
   'Tripods',
