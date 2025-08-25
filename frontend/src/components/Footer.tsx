@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import DCLogo from "../../assets/DC_logo.png"; // <-- Import logo
 
 const Footer: React.FC = () => {
   return (
@@ -19,7 +20,11 @@ const Footer: React.FC = () => {
             <Link to="/" className="flex items-center space-x-3 mb-6 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <Camera className="relative h-10 w-10 text-sky-300" />
+                <img
+                  src={DCLogo}
+                  alt="Digital Collection Logo"
+                  className="relative h-10 w-10 object-contain group-hover:scale-110 transition-transform"
+                />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-sky-300 to-blue-300 bg-clip-text text-transparent">
                 DigitalCollection
