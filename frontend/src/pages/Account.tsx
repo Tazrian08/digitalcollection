@@ -60,6 +60,7 @@ const Account: React.FC = () => {
         { id: 'profile', name: 'Profile', icon: User },
         { id: 'registerAdmin', name: 'Register Admin', icon: ShieldCheck },
         { id: 'addProduct', name: 'Add Product', icon: Package },
+        { id: 'addAd', name: 'Add to Slider', icon: Package }, // new tab
       ]
     : [
         { id: 'profile', name: 'Profile', icon: User },
@@ -191,6 +192,8 @@ const Account: React.FC = () => {
                           navigate('/admin/add');
                         } else if (tab.id === 'addProduct') {
                           navigate('/addproduct');
+                        } else if (tab.id === 'addAd') {
+                          navigate('/admin/ad');
                         } else {
                           setActiveTab(tab.id);
                         }

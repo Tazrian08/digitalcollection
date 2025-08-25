@@ -24,6 +24,7 @@ app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/compatibility', require('./routes/compatibilityRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
+app.use('/api/ads', require('./routes/adRoutes'));
 
 // Base Route
 app.get('/', (req, res) => {
