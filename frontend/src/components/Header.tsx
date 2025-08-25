@@ -120,14 +120,14 @@ const Header: React.FC = () => {
                         className="block px-4 py-2 text-gray-700 hover:bg-sky-50"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Sign In
+                        Login
                       </Link>
                       <Link
                         to="/signup"
                         className="block px-4 py-2 text-gray-700 hover:bg-sky-50"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        Sign Up
+                        Register
                       </Link>
                     </div>
                   ) : (

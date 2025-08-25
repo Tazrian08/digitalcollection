@@ -7,6 +7,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
@@ -71,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!res.ok) throw new Error('Invalid credentials');
     const data = await res.json();
     setToken(data.token);
-    console.log('Storing token:', data.token);
+
     localStorage.setItem('token', data.token);
     await fetchUser();
   };

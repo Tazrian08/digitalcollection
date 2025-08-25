@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Truck, Shield, Headphones, Sparkles, Zap, Award } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import AdSlider from '../components/AdSlider';
 
-import { Product } from '../types'; // Make sure this type exists
+import { Product, Ad } from '../types'; // Make sure this type exists
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 
 const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +23,7 @@ const Home: React.FC = () => {
         const res = await fetch(`${apiBaseUrl}/api/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
         const data = await res.json();
-        console.log('Fetched products:', data.products); // Debugging line
+
         setProducts(data.products);
       } catch (err: any) {
         setError(err.message || 'Error fetching products');
@@ -32,83 +34,29 @@ const Home: React.FC = () => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const res = await fetch(`${apiBaseUrl}/api/ads`);
+        if (!res.ok) throw new Error('Failed to fetch ads');
+        const data = await res.json();
+        setAds(data.ads);
+      } catch (err: any) {
+        console.error('Error fetching ads:', err.message);
+      }
+    };
+
+    fetchAds();
+  }, []);
+
   const featuredProducts = products.filter((_, i) => [1, 2, 3, 5].includes(i));
 
   
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100 overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-sky-300 to-blue-400 rounded-full opacity-20 blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-cyan-300 to-sky-400 rounded-full opacity-20 blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full opacity-10 blur-2xl animate-pulse delay-500"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-sky-200">
-                <Sparkles className="h-4 w-4 text-sky-500" />
-                <span className="text-sm font-medium text-sky-700">Professional Equipment Store</span>
-              </div>
-              
-              <h1 className="text-6xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-sky-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  Capture Every
-                </span>
-                <br />
-                <span className="text-gray-800">Moment with</span>
-                <br />
-                <span className="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent">
-                  Professional Gear
-                </span>
-              </h1>
-              
-              <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-                Discover our extensive collection of cameras, lenses, and accessories from top brands. 
-                Perfect for professionals and enthusiasts who demand excellence.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <Link
-                  to="/products"
-                  className="group bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center space-x-2 shadow-xl hover:shadow-2xl transform hover:scale-105"
-                >
-                  <span>Shop Now</span>
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/products?category=Cameras"
-                  className="group border-2 border-sky-300 text-sky-700 hover:bg-sky-500 hover:text-white hover:border-sky-500 px-8 py-4 rounded-2xl font-bold transition-all duration-300 text-center backdrop-blur-sm bg-white/50 shadow-lg hover:shadow-xl transform hover:scale-105"
-                >
-                  View Cameras
-                </Link>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-3xl blur-2xl opacity-30 transform rotate-6"></div>
-              <img
-                src="https://images.pexels.com/photos/90946/pexels-photo-90946.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Professional Camera"
-                className="relative rounded-3xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-700 hover:scale-105"
-              />
-              <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-4 shadow-xl border border-sky-100">
-                <div className="flex items-center space-x-2">
-                  <Award className="h-6 w-6 text-sky-500" />
-                  <div>
-                    <p className="text-sm font-bold text-gray-800">Premium Quality</p>
-                    <p className="text-xs text-gray-600">Certified Equipment</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Ad Slider */}
+      <AdSlider ads={ads} />
 
       {/* Features Section */}
       <section className="py-20 bg-gradient-to-r from-white to-sky-50">
@@ -248,7 +196,7 @@ const Home: React.FC = () => {
             </Link>
             
             <Link
-              to="/products?category=Accessories"
+              to="/products?category=Accessory"
               className="group relative bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2"
             >
               <div className="relative overflow-hidden">

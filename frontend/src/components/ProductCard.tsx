@@ -47,9 +47,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const handleAddToBuilder = () => {
+    // Ensure we have a valid builderCategory before proceeding
+    if (!builderCategory || builderCategory === 'All Categories') {
+      console.error('Cannot add to builder without a valid category');
+      return;
+    }
+    
     const updatedBuilder = {
       ...builderState,
-      [builderCategory?.toLowerCase()]: {
+      [builderCategory.toLowerCase()]: {
         id: product._id,
         name: product.name,
         price: product.price,

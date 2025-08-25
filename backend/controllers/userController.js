@@ -26,7 +26,8 @@ exports.updateUserProfile = async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
-      address: user.address
+      address: user.address,
+      isAdmin: user.isAdmin
     });
   } catch (error) {
     console.error(error);

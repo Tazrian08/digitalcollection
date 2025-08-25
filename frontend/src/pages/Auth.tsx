@@ -19,7 +19,7 @@ const Auth: React.FC<AuthProps> = ({ mode }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle authentication logic here
-    console.log('Form submitted:', formData);
+    // console.log('Form submitted:', formData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

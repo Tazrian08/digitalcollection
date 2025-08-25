@@ -8,7 +8,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const categories = [
   'All Categories',
   'Camera',
-  'Lenses',
+  'Lens',
   'Accessory',
   'Lighting',
   'Tripods',
@@ -49,7 +49,7 @@ const Products: React.FC = () => {
         const res = await fetch(`${apiBaseUrl}/api/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
         const data = await res.json();
-        console.log('Fetched products:', data);
+
         setProducts(data.products);
       } catch (err: any) {
         setError(err.message || 'Error fetching products');

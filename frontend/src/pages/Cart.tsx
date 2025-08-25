@@ -191,7 +191,7 @@ const Cart: React.FC = () => {
                       </button>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-right flex flex-col items-end min-w-[48px]">
                       <p className="text-2xl font-bold text-gray-900 mb-3">
                         {formatPrice(item.product.price * item.quantity)}
                       </p>
@@ -205,7 +205,8 @@ const Cart: React.FC = () => {
                           const data = await res.json();
                           setCartItems(data.items || []);
                         }}
-                        className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-xl"
+                        className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-xl flex-shrink-0"
+                        style={{ minWidth: 40 }}
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
