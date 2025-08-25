@@ -38,19 +38,19 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 flex-shrink-0 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
-              <img
-                src={DCLogo}
-                alt="Digital Collection Logo"
-                className="relative h-10 w-10 object-contain group-hover:scale-110 transition-transform"
-              />
-            </div>
-            <span className="hidden md:inline text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-              DigitalCollection
-            </span>
-          </Link>
+         <Link to="/" className="flex items-center space-x-3 flex-shrink-0 group">
+  <div className="relative">
+    {/* removed the gradient glow */}
+    <img
+      src={DCLogo}
+      alt="Digital Collection Logo"
+      className="h-10 w-10 object-contain group-hover:scale-110 transition-transform"
+    />
+  </div>
+  <span className="hidden md:inline text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
+    DigitalCollection
+  </span>
+</Link>
 
           {/* Spacer */}
           <div className="flex-1" />
