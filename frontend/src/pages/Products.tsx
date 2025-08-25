@@ -17,12 +17,13 @@ const categories = [
 
 const brands = [
   'All Brands',
-  'Canon',
+  'CANON',
   'Sony',
   'Nikon',
   'Fujifilm',
   'Panasonic',
-  'Olympus'
+  'Olympus',
+
 ];
 
 const Products: React.FC = () => {
