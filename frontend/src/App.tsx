@@ -20,6 +20,7 @@ import { AuthProvider } from './context/AuthContext';
 import AdminLogin from './pages/AdminLogin';
 import AddAdmin from './pages/AddAdmin';
 import AddAd from './pages/AddAd';
+import Checkout from './pages/Checkout';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/add" element={<AddAdmin />} />
               <Route path="/admin/ad" element={<AddAd />} />
+              <Route path="/checkout" element={<Checkout />} />
             </Routes>
           </main>
           <Footer />

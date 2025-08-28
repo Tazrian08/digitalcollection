@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Gift } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -8,10 +8,15 @@ const Cart: React.FC = () => {
   const { token } = useAuth();
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCart = async () => {
-      if (!token) return;
+       if (!token) {
+      setCartItems([]);       // cart is empty when no user
+      setLoading(false);      // stop loading
+      return;
+    }
       try {
         const res = await fetch(`${apiBaseUrl}/api/cart`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -229,21 +234,24 @@ const Cart: React.FC = () => {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-bold">{formatPrice(getCartTotal())}</span>
                 </div>
-                <div className="flex justify-between text-lg">
+                {/* <div className="flex justify-between text-lg">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-bold">{formatPrice(60)}</span>
-                </div>
+                </div> */}
                 <div className="border-t border-sky-200 pt-4">
                   <div className="flex justify-between text-xl">
                     <span className="font-bold">Total</span>
                     <span className="font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-                      {formatPrice(getCartTotal() + 60)}
+                      {formatPrice(getCartTotal())}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <button className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-4 px-6 rounded-2xl hover:from-sky-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 mb-4">
+              <button
+                className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-4 px-6 rounded-2xl hover:from-sky-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 mb-4"
+                onClick={() => navigate('/checkout')}
+              >
                 Proceed to Checkout
               </button>
 
