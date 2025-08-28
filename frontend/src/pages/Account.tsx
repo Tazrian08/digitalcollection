@@ -71,11 +71,31 @@ const Account: React.FC = () => {
         },
         body: JSON.stringify(form)
       });
-      if (!res.ok) throw new Error('Failed to update profile');
-      await fetchUser();
-      setMessage('Profile updated successfully!');
+      const data = await res.json();
+      if (!res.ok) {
+        const msg =
+          data?.message ||
+          (typeof data === 'string' ? data : '') ||
+          'Failed to update profile';
+        if (
+          msg === 'Email already exists' ||
+          msg === 'Phone number already exists'
+        ) {
+          setMessage(msg);
+        } else {
+          setMessage(msg || 'Failed to update profile');
+        }
+      } else {
+        await fetchUser();
+        setMessage('Profile updated successfully!');
+      }
     } catch (err: any) {
-      setMessage(err.message || 'Error updating profile');
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        (typeof err === 'string' ? err : '') ||
+        'Error updating profile';
+      setMessage(msg);
     }
     setLoading(false);
   };

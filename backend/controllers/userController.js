@@ -19,6 +19,19 @@ exports.updateUserProfile = async (req, res) => {
     if (phone) user.phone = phone;
     if (address) user.address = address;
 
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email already exists' });
+      }
+    }
+    if (phone && phone !== user.phone) {
+      const phoneExists = await User.findOne({ phone });
+      if (phoneExists) {
+        return res.status(400).json({ message: 'Phone number already exists' });
+      }
+    }
+
     await user.save();
 
     res.json({
