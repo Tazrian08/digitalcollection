@@ -27,6 +27,7 @@ exports.createOrder = async (req, res) => {
     const order = new Order({
       user: req.user._id,
       items: orderItems,
+      phone,
       totalAmount,
       shippingAddress,
       paymentMethod,
@@ -50,7 +51,10 @@ exports.createOrder = async (req, res) => {
 // Get user's orders
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate('items.product').sort({ createdAt: -1 });
+    const orders = await Order.find({ user: req.user._id })
+      .populate('user') // <-- Add this
+      .populate('items.product')
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.error(error);
@@ -70,5 +74,39 @@ exports.getOrderById = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error fetching order' });
+  }
+};
+
+exports.getOrderByOrderId = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findOne({ orderId }).populate('user').populate('items.product');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    // If not admin, only allow if user owns the order
+    if (!req.user.isAdmin && order.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    res.json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error fetching order' });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    if (!req.user.isAdmin) return res.status(403).json({ message: 'Forbidden' });
+    const { orderId } = req.params;
+    const { status } = req.body;
+    const order = await Order.findOne({ orderId }).populate('user').populate('items.product');
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    order.status = status;
+    await order.save();
+    res.json({ message: 'Order status updated', order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error updating order' });
   }
 };

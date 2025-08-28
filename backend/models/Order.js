@@ -10,6 +10,7 @@ const orderSchema = new mongoose.Schema({
   orderId: { type: String, unique: true }, // Unique order ID
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   items: [orderItemSchema],
+  phone: { type: String },
   totalAmount: { type: Number, required: true },
   shippingAddress: { type: String, required: true },
   paymentMethod: { type: String, required: true },
