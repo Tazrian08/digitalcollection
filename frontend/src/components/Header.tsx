@@ -196,6 +196,14 @@ const Header: React.FC = () => {
               >
                 Products
               </Link>
+              {/* NEW: Builder in mobile nav */}
+                <Link
+                  to="/builder"
+                  className="block px-3 py-2 text-gray-700 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Builder
+                </Link>
               <Link
                 to="/contact"
                 className="block px-3 py-2 text-gray-700 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
