@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Camera, CameraOff, Aperture, Flashlight, HardDrive, Layers, PackageCheck, ShoppingCart } from 'lucide-react';
-import { useAuth } from '../context/AuthContext'; // Add this import at the top
+import { Camera, Aperture, Flashlight, HardDrive, Layers, PackageCheck, ShoppingCart, CheckCircle, XCircle, Info } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const builderSections = [
   {
@@ -14,7 +15,7 @@ const builderSections = [
     key: 'lens',
     label: 'Lens',
     icon: <Aperture className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Lenses',
+    route: '/products?category=Lens',
   },
   {
     key: 'accessory',
@@ -49,6 +50,8 @@ interface BuilderProduct {
   images: string[];
 }
 
+type Notice = { type: 'success' | 'error' | 'info'; message: string } | null;
+
 const getInitialBuilderState = () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get('builderState')) {
@@ -74,39 +77,33 @@ const Builder: React.FC = () => {
     : null;
 
   const [selected, setSelected] = useState<{ [key: string]: BuilderProduct | null }>(getInitialBuilderState());
-  const { token } = useAuth(); // Add this line
-
+  const [notice, setNotice] = useState<Notice>(null);
+  const { token } = useAuth();
   const navigate = useNavigate();
+
+  const showNotice = (n: Exclude<Notice, null>) => setNotice(n);
 
   useEffect(() => {
     localStorage.setItem('builderState', JSON.stringify(selected));
   }, [selected]);
 
-  // Simulate selecting a product (in real app, use context or pass via route state)
-  const handleAdd = (sectionKey: string) => {
-    // This would be replaced by actual product selection logic
-    // For now, just simulate with a placeholder
-    setSelected(prev => ({
-      ...prev,
-      [sectionKey]: {
-        id: sectionKey + '-1',
-        name: `Sample ${sectionKey.charAt(0).toUpperCase() + sectionKey.slice(1)}`,
-        price: 100 * (Object.keys(selected).indexOf(sectionKey) + 1),
-        images: [],
-      }
-    }));
-  };
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 2800);
+    return () => clearTimeout(t);
+  }, [notice]);
 
   const handleRemove = (sectionKey: string) => {
     setSelected(prev => ({
       ...prev,
       [sectionKey]: null,
     }));
+    showNotice({ type: 'info', message: `${sectionKey[0].toUpperCase() + sectionKey.slice(1)} removed from kit.` });
   };
 
   const handleAddAllToCart = async () => {
     if (!token) {
-      alert('Please sign in to add items to your cart.');
+      showNotice({ type: 'error', message: 'Please sign in to add items to your cart.' });
       return;
     }
     let added = 0;
@@ -123,14 +120,14 @@ const Builder: React.FC = () => {
           });
           if (res.ok) added++;
         } catch {
-          // Optionally handle error per item
+          // ignore individual item errors for now
         }
       }
     }
     if (added > 0) {
-      alert('All selected items added to cart!');
+      showNotice({ type: 'success', message: 'Selected items added to cart.' });
     } else {
-      alert('No items were added.');
+      showNotice({ type: 'info', message: 'No items were added.' });
     }
   };
 
@@ -205,6 +202,35 @@ const Builder: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {notice && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold flex items-center gap-3
+            ${notice.type === 'success'
+              ? 'bg-gradient-to-r from-emerald-500 to-green-600'
+              : notice.type === 'error'
+              ? 'bg-gradient-to-r from-red-500 to-pink-600'
+              : 'bg-gradient-to-r from-sky-500 to-blue-600'}`}
+          role="status"
+          aria-live="polite"
+        >
+          {notice.type === 'success' ? (
+            <CheckCircle className="h-5 w-5 text-white" />
+          ) : notice.type === 'error' ? (
+            <XCircle className="h-5 w-5 text-white" />
+          ) : (
+            <Info className="h-5 w-5 text-white" />
+          )}
+          <span>{notice.message}</span>
+          <button
+            onClick={() => setNotice(null)}
+            className="ml-2 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-xs"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
     </div>
   );
 };
