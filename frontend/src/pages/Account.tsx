@@ -201,10 +201,11 @@ const Account: React.FC = () => {
   const tabs = user?.isAdmin
     ? [
         { id: 'profile', name: 'Profile', icon: User },
-        { id: 'orders', name: 'Orders', icon: Package }, // <-- Add this
+        { id: 'orders', name: 'Orders', icon: Package },
         { id: 'registerAdmin', name: 'Register Admin', icon: ShieldCheck },
         { id: 'addProduct', name: 'Add Product', icon: Package },
         { id: 'addAd', name: 'Add to Slider', icon: Package },
+        { id: 'manageAds', name: 'Manage Ads', icon: Package }, // <-- new tab
       ]
     : [
         { id: 'profile', name: 'Profile', icon: User },
@@ -351,6 +352,8 @@ const Account: React.FC = () => {
                           navigate('/addproduct');
                         } else if (tab.id === 'addAd') {
                           navigate('/admin/ad');
+                        } else if (tab.id === 'manageAds') {
+                          navigate('/admin/manage-ads');
                         } else {
                           setActiveTab(tab.id);
                         }

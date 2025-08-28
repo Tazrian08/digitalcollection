@@ -21,6 +21,7 @@ import AdminLogin from './pages/AdminLogin';
 import AddAdmin from './pages/AddAdmin';
 import AddAd from './pages/AddAd';
 import Checkout from './pages/Checkout';
+import ManageAds from './pages/ManageAds';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/add" element={<AddAdmin />} />
               <Route path="/admin/ad" element={<AddAd />} />
+              <Route path="/admin/manage-ads" element={<ManageAds />} />
               <Route path="/checkout" element={<Checkout />} />
             </Routes>
           </main>
