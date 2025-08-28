@@ -190,7 +190,9 @@ const ProductDetail: React.FC = () => {
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 mb-6">{product.description}</p>
+            <p className="text-gray-700 mb-6 whitespace-pre-line">
+              {product.description}
+            </p>
 
             {/* Features */}
             {product.features && product.features.length > 0 && (
