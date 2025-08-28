@@ -195,36 +195,92 @@ const Checkout: React.FC = () => {
 </form>
       </div>
       {/* Popup */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-            <h3 className="text-2xl font-bold mb-4 text-green-700">Your order has been placed!</h3>
-            <p className="mb-2 text-lg">Order ID: <span className="font-mono font-bold">{orderId}</span></p>
-            <p className="mb-4">For payment, contact WhatsApp number:</p>
+{showPopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    {/* Backdrop */}
+    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+    {/* Card */}
+    <div className="relative w-full max-w-lg">
+      <div className="bg-white overflow-hidden rounded-3xl shadow-2xl border border-sky-100">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-sky-500 to-blue-600 p-6 text-center">
+          <div className="mx-auto mb-3 h-14 w-14 rounded-full bg-white/15 flex items-center justify-center">
+            {/* Check icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-extrabold text-white tracking-wide">
+            Order placed successfully
+          </h3>
+          <p className="mt-1 text-sky-100">
+            Thanks for shopping with us! Please follow the instructions below to complete your payment.
+          </p>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 space-y-4">
+          <div className="bg-sky-50 border border-sky-100 rounded-2xl p-4">
+            <p className="text-sm text-sky-800 mb-1 font-medium">Your Order ID</p>
+            <div className="flex items-center gap-2">
+              <code className="font-mono text-lg font-bold text-sky-900 bg-white rounded-xl px-3 py-2 border border-sky-200">
+                {orderId}
+              </code>
+              
+            </div>
+            <p className="mt-2 text-xs text-sky-700">
+              Please <span className="font-semibold">save this Order ID</span>. You’ll need it for payment confirmation and future support.
+              You can always find it later under the <span className="font-semibold">Orders</span> tab on your <span className="font-semibold">Account</span> page.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="font-semibold text-gray-900">Next steps</h4>
+            <ol className="list-decimal ml-5 space-y-1 text-gray-700">
+              <li>Send us your payment details on WhatsApp.</li>
+              <li>Include your <span className="font-medium">Order ID</span> in the message.</li>
+              <li>We’ll verify and update your order status.</li>
+            </ol>
+          </div>
+
+          <div className="text-center">
             <a
               href={`https://wa.me/${WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-green-500 text-white px-4 py-2 rounded-lg font-bold text-lg hover:bg-green-600 transition"
+              className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-2xl font-bold text-base transition shadow"
             >
-              {WHATSAPP_NUMBER}
+              Chat on WhatsApp
+              <span className="opacity-90">({WHATSAPP_NUMBER})</span>
             </a>
-            <div className="mt-6">
-              <button
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-                onClick={() => {
-                  setShowPopup(false);
-                  navigate('/account');
-                }}
-              >
-                Go to Account
-              </button>
-            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Tip: paste your Order ID in the chat so we can assist you faster.
+            </p>
           </div>
         </div>
-      )}
+
+        {/* Footer */}
+        <div className="px-6 pb-6 text-center">
+          <button
+            className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-3 rounded-2xl font-semibold hover:from-sky-600 hover:to-blue-700 transition"
+            onClick={() => {
+              setShowPopup(false);
+              navigate('/account');
+            }}
+          >
+            Go to My Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
+
+
 
 export default Checkout;
