@@ -142,12 +142,7 @@ const Cart: React.FC = () => {
             </h1>
             <p className="text-gray-600 text-lg">{cartItems.length} items in your cart</p>
           </div>
-          <button
-            onClick={clearCart}
-            className="text-red-500 hover:text-red-700 transition-colors font-medium hover:bg-red-50 px-4 py-2 rounded-xl"
-          >
-            Clear Cart
-          </button>
+          
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
