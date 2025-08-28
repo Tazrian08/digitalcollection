@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Heart, ShoppingCart, Star, Check, Shield, Truck } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart, ShoppingCart, Star, Check, Shield, Truck, XCircle, CheckCircle } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../context/AuthContext';
@@ -14,10 +14,12 @@ const ProductDetail: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user, token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -36,6 +38,12 @@ const ProductDetail: React.FC = () => {
     };
     if (id) fetchProduct();
   }, [id]);
+
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 3000);
+    return () => clearTimeout(t);
+  }, [notice]);
 
   if (loading) {
     return (
@@ -66,7 +74,7 @@ const ProductDetail: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (!token) {
-      alert('Please sign in to add items to your cart.');
+      setNotice({ type: 'error', message: 'Please sign in to add items to your cart.' });
       return;
     }
     try {
@@ -79,9 +87,9 @@ const ProductDetail: React.FC = () => {
         body: JSON.stringify({ productId: product._id, quantity })
       });
       if (!res.ok) throw new Error('Failed to add to cart');
-      alert('Added to cart!');
+      setNotice({ type: 'success', message: 'Added to cart!' });
     } catch (err) {
-      alert('Error adding to cart');
+      setNotice({ type: 'error', message: 'Error adding to cart.' });
     }
   };
 
@@ -90,6 +98,22 @@ const ProductDetail: React.FC = () => {
       removeFromWishlist(product.id || product._id);
     } else {
       addToWishlist(product.id || product._id);
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/products/${product._id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to delete product');
+      setNotice({ type: 'success', message: 'Product deleted!' });
+      setTimeout(() => navigate('/products'), 1200);
+    } catch (err: any) {
+      setNotice({ type: 'error', message: err.message || 'Error deleting product' });
     }
   };
 
@@ -121,7 +145,7 @@ const ProductDetail: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images */}
+          {/* Product Images & Quantity/Add to Cart */}
           <div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
               <img
@@ -130,9 +154,8 @@ const ProductDetail: React.FC = () => {
                 className="w-full h-96 object-cover"
               />
             </div>
-            
             {product.images && product.images.length > 1 && (
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mb-4">
                 {product.images.map((image: string, index: number) => (
                   <button
                     key={index}
@@ -150,6 +173,47 @@ const ProductDetail: React.FC = () => {
                 ))}
               </div>
             )}
+            {/* Quantity and Actions */}
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex items-center">
+                <label className="text-sm font-medium text-gray-700 mr-3">Quantity:</label>
+                <select
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={product.stock <= 0}
+                >
+                  {[...Array(Math.min(10, product.stock))].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex space-x-4 mb-6">
+              <button
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0}
+                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                <span>Add to Cart</span>
+              </button>
+              <button
+                onClick={handleWishlistToggle}
+                className={`p-3 rounded-lg border-2 transition-colors ${
+                  isWishlisted
+                    ? 'border-red-500 text-red-500 bg-red-50'
+                    : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'
+                }`}
+              >
+                <Heart
+                  className="h-5 w-5"
+                  fill={isWishlisted ? 'currentColor' : 'none'}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Product Info */}
@@ -173,21 +237,7 @@ const ProductDetail: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
             {user?.isAdmin && token && (
               <button
-                onClick={async () => {
-                  if (!window.confirm('Are you sure you want to delete this product?')) return;
-                  try {
-                    const res = await fetch(`${apiBaseUrl}/api/products/${product._id}`, {
-                      method: 'DELETE',
-                      headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.message || 'Failed to delete product');
-                    alert('Product deleted!');
-                    window.location.href = '/products';
-                  } catch (err: any) {
-                    alert(err.message || 'Error deleting product');
-                  }
-                }}
+                onClick={handleDeleteProduct}
                 className="mb-4 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition"
               >
                 Delete Product
@@ -211,10 +261,11 @@ const ProductDetail: React.FC = () => {
               )}
             </div>
 
-            {/* Description */}
-            <p className="text-gray-700 mb-6 whitespace-pre-line">
-              {product.description}
-            </p>
+            {/* Description - move here, no scrolling */}
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">Description</h2>
+              <p className="text-gray-700 whitespace-pre-line">{product.description}</p>
+            </div>
 
             {/* Features */}
             {product.features && product.features.length > 0 && (
@@ -260,50 +311,6 @@ const ProductDetail: React.FC = () => {
               )}
             </div>
 
-            {/* Quantity and Actions */}
-            <div className="flex items-center space-x-4 mb-6">
-              <div className="flex items-center">
-                <label className="text-sm font-medium text-gray-700 mr-3">Quantity:</label>
-                <select
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={product.stock <= 0}
-                >
-                  {[...Array(Math.min(10, product.stock))].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex space-x-4 mb-6">
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock <= 0}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span>Add to Cart</span>
-              </button>
-              
-              <button
-                onClick={handleWishlistToggle}
-                className={`p-3 rounded-lg border-2 transition-colors ${
-                  isWishlisted
-                    ? 'border-red-500 text-red-500 bg-red-50'
-                    : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'
-                }`}
-              >
-                <Heart
-                  className="h-5 w-5"
-                  fill={isWishlisted ? 'currentColor' : 'none'}
-                />
-              </button>
-            </div>
-
             {/* Additional Info */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center space-x-2 text-gray-600">
@@ -334,6 +341,31 @@ const ProductDetail: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Toast Notification */}
+        {notice && (
+          <div
+            className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold flex items-center gap-3
+              ${notice.type === 'success'
+                ? 'bg-gradient-to-r from-emerald-500 to-green-600'
+                : 'bg-gradient-to-r from-red-500 to-pink-600'}`}
+            role="status"
+            aria-live="polite"
+          >
+            {notice.type === 'success' ? (
+              <CheckCircle className="h-5 w-5 text-white" />
+            ) : (
+              <XCircle className="h-5 w-5 text-white" />
+            )}
+            <span>{notice.message}</span>
+            <button
+              onClick={() => setNotice(null)}
+              className="ml-2 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-xs"
+            >
+              Dismiss
+            </button>
           </div>
         )}
       </div>
