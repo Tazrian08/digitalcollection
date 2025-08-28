@@ -44,6 +44,14 @@ const Login: React.FC = () => {
           <button type="submit" className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:from-sky-600 hover:to-blue-700 transition-all duration-300">
             Login
           </button>
+          <div className="text-center mt-4">
+            <a
+              href="/forgot-password"
+              className="text-blue-600 hover:underline text-sm"
+            >
+              Forgot password?
+            </a>
+          </div>
         </form>
       </div>
     </div>
