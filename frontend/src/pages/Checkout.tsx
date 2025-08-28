@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const SHIPPING_COST = 60;
-const WHATSAPP_NUMBER = '01234567892';
+const WHATSAPP_NUMBER = '+8801631073242';
 
 const Checkout: React.FC = () => {
   const { token, user } = useAuth();
