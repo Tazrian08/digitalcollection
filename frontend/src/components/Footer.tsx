@@ -70,13 +70,13 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/wishlist" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Wishlist
+                <Link to="/builder" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                  Builder
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Orders
+                <Link to="/cart" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                  Cart
                 </Link>
               </li>
             </ul>
