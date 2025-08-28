@@ -3,6 +3,7 @@ import { User, Package, Heart, Settings, MapPin, CreditCard, ShieldCheck } from 
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import ContactInbox from '../components/ContactInbox';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const Account: React.FC = () => {
@@ -202,10 +203,12 @@ const Account: React.FC = () => {
     ? [
         { id: 'profile', name: 'Profile', icon: User },
         { id: 'orders', name: 'Orders', icon: Package },
+        { id: 'contactInbox', name: 'Contact Inbox', icon: Heart }, // <-- new tab
         { id: 'registerAdmin', name: 'Register Admin', icon: ShieldCheck },
         { id: 'addProduct', name: 'Add Product', icon: Package },
         { id: 'addAd', name: 'Add to Slider', icon: Package },
-        { id: 'manageAds', name: 'Manage Ads', icon: Package }, // <-- new tab
+        { id: 'manageAds', name: 'Manage Ads', icon: Package },
+        
       ]
     : [
         { id: 'profile', name: 'Profile', icon: User },
@@ -306,6 +309,11 @@ const Account: React.FC = () => {
           </div>
         );
 
+      case 'contactInbox':
+        return (
+          <ContactInbox user={user} token={token || ''} />
+        );
+
       case 'registerAdmin':
         // Redirect to /admin/add
         window.location.href = '/admin/add';
@@ -354,6 +362,8 @@ const Account: React.FC = () => {
                           navigate('/admin/ad');
                         } else if (tab.id === 'manageAds') {
                           navigate('/admin/manage-ads');
+                        } else if (tab.id === 'contactInbox') {
+                          setActiveTab('contactInbox');
                         } else {
                           setActiveTab(tab.id);
                         }

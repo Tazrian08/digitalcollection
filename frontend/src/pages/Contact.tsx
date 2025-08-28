@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, Sparkles } from 'lucide-react';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -8,16 +10,44 @@ const Contact: React.FC = () => {
     subject: '',
     message: ''
   });
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    // console.log('Contact form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setSuccess('');
+    setError('');
+    setLoading(true);
+
+    // Combine subject and message for backend
+    const fullMessage = formData.subject
+      ? `[${formData.subject}] ${formData.message}`
+      : formData.message;
+
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: fullMessage
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to send message');
+      setSuccess(data.message || 'Message sent!');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message');
+    }
+    setLoading(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
@@ -120,6 +150,8 @@ const Contact: React.FC = () => {
                 Send us a Message
               </h2>
               
+              {success && <div className="text-green-600 text-center mb-4">{success}</div>}
+              {error && <div className="text-red-500 text-center mb-4">{error}</div>}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -194,10 +226,11 @@ const Contact: React.FC = () => {
 
                 <button
                   type="submit"
+                  disabled={loading}
                   className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-4 px-8 rounded-2xl hover:from-sky-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center space-x-2 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <Send className="h-5 w-5" />
-                  <span>Send Message</span>
+                  <span>{loading ? 'Sending...' : 'Send Message'}</span>
                 </button>
               </form>
             </div>
