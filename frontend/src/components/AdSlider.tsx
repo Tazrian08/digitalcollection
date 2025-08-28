@@ -68,7 +68,7 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
   // Auto-play
   useEffect(() => {
     if (ads.length <= 1) return;
-    const id = setInterval(goToNext, 15000);
+    const id = setInterval(goToNext, 7000);
     return () => clearInterval(id);
     // eslint-disable-next-line
   }, [currentIndex, ads.length]);
