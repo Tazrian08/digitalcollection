@@ -84,8 +84,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password, phone, address })
     });
-    if (!res.ok) throw new Error('Registration failed');
     const data = await res.json();
+    if (!res.ok) {
+      // Use backend error message if available
+      throw new Error(data?.message || 'Registration failed');
+    }
     setToken(data.token);
     localStorage.setItem('token', data.token);
     await fetchUser();

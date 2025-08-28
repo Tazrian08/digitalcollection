@@ -11,7 +11,11 @@ exports.registerUser = async (req, res) => {
   try {
     const userExists = await User.findOne({ email });
     if(userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    const userExists2 = await User.findOne({ phone });
+    if(userExists2) {
+      return res.status(400).json({ message: 'Phone number already in use' });
     }
 
     const user = new User({ name, email, password, phone, address});
