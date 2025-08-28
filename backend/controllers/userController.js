@@ -14,23 +14,26 @@ exports.updateUserProfile = async (req, res) => {
 
     const { name, email, phone, address } = req.body;
 
-    if (name) user.name = name;
-    if (email) user.email = email;
-    if (phone) user.phone = phone;
-    if (address) user.address = address;
-
+    // Check email duplicate before assigning
     if (email && email !== user.email) {
       const emailExists = await User.findOne({ email });
       if (emailExists) {
         return res.status(400).json({ message: 'Email already exists' });
       }
     }
+    // Check phone duplicate before assigning
     if (phone && phone !== user.phone) {
       const phoneExists = await User.findOne({ phone });
       if (phoneExists) {
         return res.status(400).json({ message: 'Phone number already exists' });
       }
     }
+
+    // Now assign values
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
 
     await user.save();
 
