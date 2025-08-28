@@ -217,7 +217,15 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Product Info */}
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div
+            className="bg-white rounded-lg shadow-md p-8 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-sky-400 scrollbar-track-sky-100"
+            style={{
+              maxHeight: 'calc(100vh - 6rem)', // Adjust for your header/footer height
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#38bdf8 #e0f2fe',
+              msOverflowStyle: 'none',
+            }}
+          >
             <div className="flex items-center justify-between mb-4">
               <span className="text-blue-600 font-medium">{product.brand}</span>
               <div className="flex items-center space-x-2">
