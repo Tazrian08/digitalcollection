@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingCart, Star, Check, Shield, Truck } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useWishlist } from '../hooks/useWishlist';
-import { useAuth } from '../context/AuthContext'; // Add this import
+import { useAuth } from '../context/AuthContext';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -17,7 +17,7 @@ const ProductDetail: React.FC = () => {
 
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const { token } = useAuth(); // Add this line
+  const { user, token } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -171,6 +171,28 @@ const ProductDetail: React.FC = () => {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+            {user?.isAdmin && token && (
+              <button
+                onClick={async () => {
+                  if (!window.confirm('Are you sure you want to delete this product?')) return;
+                  try {
+                    const res = await fetch(`${apiBaseUrl}/api/products/${product._id}`, {
+                      method: 'DELETE',
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Failed to delete product');
+                    alert('Product deleted!');
+                    window.location.href = '/products';
+                  } catch (err: any) {
+                    alert(err.message || 'Error deleting product');
+                  }
+                }}
+                className="mb-4 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition"
+              >
+                Delete Product
+              </button>
+            )}
 
             {/* Price */}
             <div className="flex items-center space-x-4 mb-6">
