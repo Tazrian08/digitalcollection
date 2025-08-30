@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const SHIPPING_COST = 60;
-const WHATSAPP_NUMBER = '01234567892';
+const WHATSAPP_NUMBER = '+8801613799099';
 
 const Checkout: React.FC = () => {
   const { token, user } = useAuth();
@@ -246,7 +246,9 @@ const Checkout: React.FC = () => {
 
           <div className="text-center">
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                `Hello, I want to confirm my payment for Order ID: ${orderId}`
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-2xl font-bold text-base transition shadow"

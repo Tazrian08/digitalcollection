@@ -106,11 +106,26 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    if(!product) return res.status(404).json({ message: 'Product not found' });
+    if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    await product.remove();
-    res.json({ message: 'Product removed' });
-  } catch(error) {
+    // Remove images and folder
+    if (product.images && product.images.length > 0) {
+      // Images are stored as: \images\ProductName\1.jpg
+      const firstImage = product.images[0];
+      // Get folder path
+      const match = firstImage.match(/\\images\\([^\\]+)\\/);
+      const folderName = match ? match[1] : null;
+      if (folderName) {
+        const folderPath = path.join(__dirname, '..', 'images', folderName);
+        if (fs.existsSync(folderPath)) {
+          fs.rmSync(folderPath, { recursive: true, force: true });
+        }
+      }
+    }
+
+    await product.deleteOne();
+    res.json({ message: 'Product and images deleted' });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error deleting product' });
   }

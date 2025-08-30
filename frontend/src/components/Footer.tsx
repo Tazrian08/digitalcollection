@@ -35,18 +35,18 @@ const Footer: React.FC = () => {
               lenses, and accessories for photographers and videographers of all levels.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
+              <a href="https://www.facebook.com/DigitalCollectionBD/" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
+              {/* <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
                 <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
+              </a> */}
+              <a href="https://www.instagram.com/digitalcollection___?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
+              {/* <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
                 <Youtube className="h-5 w-5" />
-              </a>
+              </a> */}
             </div>
           </div>
 
@@ -70,13 +70,13 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/wishlist" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Wishlist
+                <Link to="/builder" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                  Builder
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Orders
+                <Link to="/cart" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                  Cart
                 </Link>
               </li>
             </ul>
@@ -92,22 +92,22 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                <a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
                   Shipping Info
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                <a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
                   Returns
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                {/* <a href="#" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
                   Warranty
-                </a>
+                </a> */}
               </li>
               <li>
-                <a href="#" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
+                <a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
                   FAQ
                 </a>
               </li>

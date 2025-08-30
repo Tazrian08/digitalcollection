@@ -25,8 +25,8 @@ const Cart: React.FC = () => {
   useEffect(() => {
     const fetchCart = async () => {
       if (!token) {
-        setCartItems([]);       // cart is empty when no user
-        setLoading(false);      // stop loading
+        setCartItems([]);
+        setLoading(false);
         return;
       }
       try {
@@ -44,11 +44,8 @@ const Cart: React.FC = () => {
     fetchCart();
   }, [token]);
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString();
-  };
+  const formatPrice = (price: number) => price.toLocaleString();
 
-  // Update quantity of a cart item
   const updateQuantity = async (productId: string, newQuantity: number) => {
     if (!token) return;
     try {
@@ -69,7 +66,6 @@ const Cart: React.FC = () => {
     }
   };
 
-  // Remove item from cart
   const removeFromCart = async (productId: string) => {
     if (!token) return;
     try {
@@ -86,7 +82,6 @@ const Cart: React.FC = () => {
     }
   };
 
-  // Clear the entire cart
   const clearCart = async () => {
     if (!token) return;
     try {
@@ -103,13 +98,8 @@ const Cart: React.FC = () => {
     }
   };
 
-  // Get cart total
-  const getCartTotal = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.product.price * item.quantity,
-      0
-    );
-  };
+  const getCartTotal = () =>
+    cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -148,8 +138,6 @@ const Cart: React.FC = () => {
             <span>Continue Shopping</span>
           </Link>
         </div>
-
-        {/* Toast */}
         {notice && (
           <div
             className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold
@@ -189,49 +177,56 @@ const Cart: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-sky-200">
               {cartItems.map((item, index) => (
-                <div key={item.product._id} className={`p-8 ${index !== cartItems.length - 1 ? 'border-b border-sky-100' : ''}`}>
-                  <div className="flex items-center space-x-6">
-                    <div className="relative">
+                <div key={item.product._id} className={`p-6 sm:p-8 ${index !== cartItems.length - 1 ? 'border-b border-sky-100' : ''}`}>
+                  {/* Responsive row: stack on small screens */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                    {/* Image */}
+                    <div className="relative flex-shrink-0 mx-auto sm:mx-0">
                       <img
                         src={getImageUrl(item.product)}
                         alt={item.product.name}
                         className="w-24 h-24 object-cover rounded-2xl shadow-md"
                       />
                     </div>
-                    
-                    <div className="flex-1">
+
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
                       <Link
                         to={`/product/${item.product._id}`}
-                        className="text-xl font-bold text-gray-900 hover:text-sky-600 transition-colors block mb-2"
+                        className="text-lg sm:text-xl font-bold text-gray-900 hover:text-sky-600 transition-colors block mb-2 break-words"
                       >
                         {item.product.name}
                       </Link>
-                      <p className="text-sky-600 font-medium mb-3">{item.product.brand}</p>
-                      <p className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
+                      <p className="text-sky-600 font-medium mb-2">{item.product.brand}</p>
+                      <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
                         {formatPrice(item.product.price)}
                       </p>
                     </div>
 
-                    <div className="flex items-center space-x-4 bg-sky-50 rounded-2xl p-3">
+                    {/* Quantity controls */}
+                    <div className="flex items-center gap-4 bg-sky-50 rounded-2xl p-3 w-full sm:w-auto sm:ml-auto sm:justify-center justify-between">
                       <button
                         onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
                         className="p-2 rounded-xl hover:bg-sky-100 transition-colors text-sky-600 hover:text-sky-700"
+                        aria-label="Decrease quantity"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
-                      
+
                       <span className="w-12 text-center font-bold text-lg text-gray-800">{item.quantity}</span>
-                      
+
                       <button
                         onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
                         className="p-2 rounded-xl hover:bg-sky-100 transition-colors text-sky-600 hover:text-sky-700"
+                        aria-label="Increase quantity"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
 
-                    <div className="text-right flex flex-col items-end min-w-[48px]">
-                      <p className="text-2xl font-bold text-gray-900 mb-3">
+                    {/* Price + delete */}
+                    <div className="w-full sm:w-auto flex items-center justify-between sm:flex-col sm:items-end sm:justify-center gap-3">
+                      <p className="text-xl sm:text-2xl font-bold text-gray-900">
                         {formatPrice(item.product.price * item.quantity)}
                       </p>
                       <button
@@ -243,12 +238,10 @@ const Cart: React.FC = () => {
                             });
                             const data = await res.json();
                             setCartItems(data.items || []);
-                          } catch {
-                            // leave list as is
-                          }
+                          } catch { /* noop */ }
                         }}
                         className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-xl flex-shrink-0"
-                        style={{ minWidth: 40 }}
+                        aria-label="Remove item"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
@@ -265,7 +258,7 @@ const Cart: React.FC = () => {
               <h2 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-6">
                 Order Summary
               </h2>
-              
+
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-lg">
                   <span className="text-gray-600">Subtotal</span>
@@ -299,7 +292,6 @@ const Cart: React.FC = () => {
         </div>
       </div>
 
-      {/* Toast */}
       {notice && (
         <div
           className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold

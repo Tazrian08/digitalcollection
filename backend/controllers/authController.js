@@ -11,7 +11,11 @@ exports.registerUser = async (req, res) => {
   try {
     const userExists = await User.findOne({ email });
     if(userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    const userExists2 = await User.findOne({ phone });
+    if(userExists2) {
+      return res.status(400).json({ message: 'Phone number already in use' });
     }
 
     const user = new User({ name, email, password, phone, address});
@@ -106,6 +110,36 @@ exports.addAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Step 1: Find user by email and return masked phone
+exports.forgotPasswordStep1 = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.phone) {
+      return res.status(404).json({ message: 'Email not found' });
+    }
+    // Mask phone: show first 3 digits, rest as *
+    const maskedPhone = user.phone.slice(0, 3) + '*****';
+    res.json({ maskedPhone, phone: user.phone });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Step 2: Reset password
+exports.resetPasswordStep2 = async (req, res) => {
+  const { email, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.password = newPassword;
+    await user.save();
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
 };

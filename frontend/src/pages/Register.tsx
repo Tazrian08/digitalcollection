@@ -25,7 +25,15 @@ const Register: React.FC = () => {
       await register(form.name, form.email, form.password, form.phone, form.address);
       navigate('/account');
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      if (
+        err.message === 'User already exists' ||
+        err.message === 'Email already exists' ||
+        err.message === 'Phone number already in use'
+      ) {
+        setError(err.message);
+      } else {
+        setError(err.message || 'A');
+      }
     }
   };
 

@@ -23,8 +23,9 @@ const brands = [
   'Fujifilm',
   'Panasonic',
   'Olympus',
-
 ];
+
+const PAGE_SIZE = 15;
 
 const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -34,6 +35,7 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Query params
   const selectedCategory = searchParams.get('category') || 'All Categories';
   const selectedBrand = searchParams.get('brand') || 'All Brands';
   const sortBy = searchParams.get('sort') || 'name';
@@ -41,6 +43,7 @@ const Products: React.FC = () => {
   const builderState = searchParams.get('builderState')
     ? JSON.parse(decodeURIComponent(searchParams.get('builderState')!))
     : {};
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -50,7 +53,6 @@ const Products: React.FC = () => {
         const res = await fetch(`${apiBaseUrl}/api/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
         const data = await res.json();
-
         setProducts(data.products);
       } catch (err: any) {
         setError(err.message || 'Error fetching products');
@@ -61,42 +63,131 @@ const Products: React.FC = () => {
     fetchProducts();
   }, []);
 
+  // Filter + sort (does not paginate; this prepares the full filtered list)
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
 
-    // Filter by category
     if (selectedCategory !== 'All Categories') {
       filtered = filtered.filter(product => product.category === selectedCategory);
     }
 
-    // Filter by brand
     if (selectedBrand !== 'All Brands') {
       filtered = filtered.filter(product => product.brand === selectedBrand);
     }
 
-    // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'price-low':
-          return a.price - b.price;
+          return (a.price ?? 0) - (b.price ?? 0);
         case 'price-high':
-          return b.price - a.price;
+          return (b.price ?? 0) - (a.price ?? 0);
+        case 'rating':
+          return (b.rating ?? 0) - (a.rating ?? 0);
+        case 'newest':
+          // try createdAt; fallback to name
+          const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return bDate - aDate;
         default:
-          return a.name.localeCompare(b.name);
+          return String(a.name || '').localeCompare(String(b.name || ''));
       }
     });
 
     return filtered;
   }, [products, selectedCategory, selectedBrand, sortBy]);
 
+  // Pagination math
+  const totalItems = filteredProducts.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages); // guard if filters shrink results
+
+  // Slice ONLY the current page items (ensures only 15 are rendered)
+  const currentPageItems = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return filteredProducts.slice(start, end);
+  }, [filteredProducts, safePage]);
+
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
-    if (value === 'All Categories' || value === 'All Brands') {
+    if ((key === 'category' && value === 'All Categories') || (key === 'brand' && value === 'All Brands')) {
       newParams.delete(key);
     } else {
       newParams.set(key, value);
     }
+    // Reset to page 1 whenever filters or sort change
+    newParams.set('page', '1');
     setSearchParams(newParams);
+  };
+
+  const goToPage = (page: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', String(page));
+    setSearchParams(newParams);
+    // Optional: scroll to top on page switch
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    // Create a compact pagination with first/last + around current
+    const pages: number[] = [];
+    const add = (p: number) => {
+      if (p >= 1 && p <= totalPages && !pages.includes(p)) pages.push(p);
+    };
+
+    add(1);
+    add(2);
+    add(safePage - 2);
+    add(safePage - 1);
+    add(safePage);
+    add(safePage + 1);
+    add(safePage + 2);
+    add(totalPages - 1);
+    add(totalPages);
+
+    const uniqueSorted = [...new Set(pages)].sort((a, b) => a - b);
+
+    return (
+      <div className="mt-10 flex items-center justify-center gap-2">
+        <button
+          onClick={() => goToPage(Math.max(1, safePage - 1))}
+          disabled={safePage === 1}
+          className="px-4 py-2 rounded-xl bg-white/80 border border-sky-200 text-gray-700 disabled:opacity-50 hover:bg-white shadow-sm"
+        >
+          Prev
+        </button>
+
+        {uniqueSorted.map((p, idx) => {
+          const prev = uniqueSorted[idx - 1];
+          const showDots = prev && p - prev > 1;
+          return (
+            <React.Fragment key={p}>
+              {showDots && <span className="px-2 text-gray-400">…</span>}
+              <button
+                onClick={() => goToPage(p)}
+                className={`px-4 py-2 rounded-xl border shadow-sm transition ${
+                  p === safePage
+                    ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white border-transparent'
+                    : 'bg-white/80 border-sky-200 text-gray-700 hover:bg-white'
+                }`}
+              >
+                {p}
+              </button>
+            </React.Fragment>
+          );
+        })}
+
+        <button
+          onClick={() => goToPage(Math.min(totalPages, safePage + 1))}
+          disabled={safePage === totalPages}
+          className="px-4 py-2 rounded-xl bg-white/80 border border-sky-200 text-gray-700 disabled:opacity-50 hover:bg-white shadow-sm"
+        >
+          Next
+        </button>
+      </div>
+    );
   };
 
   if (loading) {
@@ -129,11 +220,11 @@ const Products: React.FC = () => {
               Products
             </h1>
             <p className="text-gray-600 text-lg">
-              Showing {filteredProducts.length} of {products.length} products
+              Showing {(currentPageItems.length)} of {totalItems} products
             </p>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col w-full lg:w-auto space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
             {/* Sort */}
             <select
               value={sortBy}
@@ -147,8 +238,8 @@ const Products: React.FC = () => {
               <option value="newest">Newest First</option>
             </select>
 
-            {/* View Mode */}
-            <div className="flex border-2 border-sky-200 rounded-xl bg-white/80 backdrop-blur-sm">
+            {/* View Mode - only show on desktop */}
+            <div className="hidden lg:flex border-2 border-sky-200 rounded-xl bg-white/80 backdrop-blur-sm">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-3 rounded-l-xl transition-all duration-300 ${
@@ -171,14 +262,17 @@ const Products: React.FC = () => {
               </button>
             </div>
 
-            {/* Filter Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden flex items-center space-x-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Filter className="h-5 w-5" />
-              <span>Filters</span>
-            </button>
+            {/* Mobile: Filter Button left below sorting */}
+            <div className="flex w-full lg:hidden">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 mt-2"
+                style={{ marginRight: 'auto' }}
+              >
+                <Filter className="h-5 w-5" />
+                <span>Filters</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -236,9 +330,9 @@ const Products: React.FC = () => {
             </div>
           </div>
 
-          {/* Products Grid */}
+          {/* Products Grid (only render current page items) */}
           <div className="lg:w-3/4">
-            {filteredProducts.length === 0 ? (
+            {currentPageItems.length === 0 ? (
               <div className="text-center py-20 bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-sky-200">
                 <div className="w-24 h-24 bg-gradient-to-br from-sky-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Filter className="h-12 w-12 text-sky-500" />
@@ -247,21 +341,26 @@ const Products: React.FC = () => {
                 <p className="text-gray-600 text-lg">Try adjusting your filters to see more results.</p>
               </div>
             ) : (
-              <div className={`grid gap-8 ${
-                viewMode === 'grid' 
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                  : 'grid-cols-1'
-              }`}>
-                {filteredProducts.map(product => (
-                  <ProductCard
-                    key={product.id || product._id}
-                    product={product}
-                    fromBuilder={fromBuilder}
-                    builderCategory={selectedCategory}
-                    builderState={builderState}
-                  />
-                ))}
-              </div>
+              <>
+                <div className={`grid gap-8 ${
+                  viewMode === 'grid' 
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                    : 'grid-cols-1'
+                }`}>
+                  {currentPageItems.map(product => (
+                    <ProductCard
+                      key={product.id || product._id}
+                      product={product}
+                      fromBuilder={fromBuilder}
+                      builderCategory={selectedCategory}
+                      builderState={builderState}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {renderPagination()}
+              </>
             )}
           </div>
         </div>

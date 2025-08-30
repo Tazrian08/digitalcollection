@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Circle, CircleDot } from "lucide-react";
 
 interface Ad {
@@ -14,31 +14,38 @@ interface AdSliderProps {
 }
 
 const FADE_MS = 1000; // transition length
+const AUTO_MS = 7000; // autoplay length
 
 const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [isCrossfading, setIsCrossfading] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false); // toggled just after mount of next img
-
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+  // prevent double-triggering while animating
+  const animatingRef = useRef(false);
 
   // Heights (like a hero banner)
   const bannerHeights = "h-[42vh] md:h-[58vh] lg:h-[72vh] xl:h-[78vh]";
   const sectionBleed =
     "relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden";
 
-  // Preload the next image for smoother switch
+  // Preload next & previous images for smoother switch
   useEffect(() => {
     if (ads.length > 1) {
       const next = (currentIndex + 1) % ads.length;
-      const img = new Image();
-      img.src = `${apiBaseUrl}${ads[next].image}`;
+      const prev = (currentIndex - 1 + ads.length) % ads.length;
+      [next, prev].forEach((idx) => {
+        const img = new Image();
+        img.src = `${apiBaseUrl}${ads[idx].image}`;
+      });
     }
   }, [ads, currentIndex, apiBaseUrl]);
 
   const startCrossfade = (to: number) => {
-    if (to === currentIndex) return;
+    if (to === currentIndex || animatingRef.current) return;
+    animatingRef.current = true;
     setPrevIndex(currentIndex);
     setCurrentIndex(to);
     setIsCrossfading(true);
@@ -46,11 +53,11 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
     // kick off fade on next frame so CSS transitions apply
     requestAnimationFrame(() => setShowCurrent(true));
     // end animation after FADE_MS
-    const t = setTimeout(() => {
+    window.setTimeout(() => {
       setIsCrossfading(false);
       setPrevIndex(null);
+      animatingRef.current = false;
     }, FADE_MS);
-    return () => clearTimeout(t);
   };
 
   const goToPrevious = () => {
@@ -68,8 +75,8 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
   // Auto-play
   useEffect(() => {
     if (ads.length <= 1) return;
-    const id = setInterval(goToNext, 15000);
-    return () => clearInterval(id);
+    const id = window.setInterval(goToNext, AUTO_MS);
+    return () => window.clearInterval(id);
     // eslint-disable-next-line
   }, [currentIndex, ads.length]);
 
@@ -88,7 +95,11 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
 
   // Shared class for the images
   const imgBase =
-    "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-opacity";
+    "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out will-change-opacity";
+
+  // Optional: slight Ken Burns on the active image for extra smoothness
+  const kenBurns =
+    "transition-transform duration-[7000ms] ease-linear will-change-transform";
 
   return (
     <section className={sectionBleed}>
@@ -96,9 +107,10 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
         {/* Previous image (fades out) */}
         {isCrossfading && prevAd && (
           <img
+            key={`prev-${prevAd._id}-${prevIndex}`}
             src={`${apiBaseUrl}${prevAd.image}`}
             alt={prevAd.title}
-            className={`${imgBase} opacity-${showCurrent ? "0" : "100"}`}
+            className={`${imgBase} ${showCurrent ? "opacity-0" : "opacity-100"}`}
           />
         )}
 
@@ -106,20 +118,24 @@ const AdSlider: React.FC<AdSliderProps> = ({ ads }) => {
         {currentAd.link ? (
           <a href={currentAd.link} className="block w-full h-full">
             <img
+              key={`curr-${currentAd._id}-${currentIndex}`}
               src={`${apiBaseUrl}${currentAd.image}`}
               alt={currentAd.title}
-              className={`${imgBase} ${isCrossfading ? (showCurrent ? "opacity-100" : "opacity-0") : "opacity-100"}`}
+              className={`${imgBase} ${isCrossfading ? (showCurrent ? "opacity-100" : "opacity-0") : "opacity-100"} ${kenBurns}`}
+              style={{ transform: isCrossfading ? (showCurrent ? "scale(1.02)" : "scale(1)") : "scale(1.02)" }}
             />
           </a>
         ) : (
           <img
+            key={`curr-${currentAd._id}-${currentIndex}`}
             src={`${apiBaseUrl}${currentAd.image}`}
             alt={currentAd.title}
-            className={`${imgBase} ${isCrossfading ? (showCurrent ? "opacity-100" : "opacity-0") : "opacity-100"}`}
+            className={`${imgBase} ${isCrossfading ? (showCurrent ? "opacity-100" : "opacity-0") : "opacity-100"} ${kenBurns}`}
+            style={{ transform: isCrossfading ? (showCurrent ? "scale(1.02)" : "scale(1)") : "scale(1.02)" }}
           />
         )}
 
-        {/* Subtle gradient overlay (helps UI pop, DJI-like) */}
+        {/* Subtle gradient overlay (helps UI pop) */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/40 pointer-events-none" />
 
         {/* Navigation */}
