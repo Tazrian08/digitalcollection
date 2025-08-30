@@ -45,6 +45,10 @@ const Products: React.FC = () => {
     : {};
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   
 
   useEffect(() => {
