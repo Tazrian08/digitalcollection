@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, Grid, List, Sparkles } from 'lucide-react';
@@ -225,7 +224,7 @@ const Products: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col w-full lg:w-auto space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
             {/* Sort */}
             <select
               value={sortBy}
@@ -239,8 +238,8 @@ const Products: React.FC = () => {
               <option value="newest">Newest First</option>
             </select>
 
-            {/* View Mode */}
-            <div className="flex border-2 border-sky-200 rounded-xl bg-white/80 backdrop-blur-sm">
+            {/* View Mode - only show on desktop */}
+            <div className="hidden lg:flex border-2 border-sky-200 rounded-xl bg-white/80 backdrop-blur-sm">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-3 rounded-l-xl transition-all duration-300 ${
@@ -263,14 +262,17 @@ const Products: React.FC = () => {
               </button>
             </div>
 
-            {/* Filter Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden flex items-center space-x-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Filter className="h-5 w-5" />
-              <span>Filters</span>
-            </button>
+            {/* Mobile: Filter Button left below sorting */}
+            <div className="flex w-full lg:hidden">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 mt-2"
+                style={{ marginRight: 'auto' }}
+              >
+                <Filter className="h-5 w-5" />
+                <span>Filters</span>
+              </button>
+            </div>
           </div>
         </div>
 
