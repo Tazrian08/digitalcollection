@@ -40,14 +40,14 @@ const Header: React.FC = () => {
           {/* Logo */}
          <Link to="/" className="flex items-center space-x-3 flex-shrink-0 group">
   <div className="relative">
-    {/* removed the gradient glow */}
     <img
       src={DCLogo}
       alt="Digital Collection Logo"
       className="h-10 w-10 object-contain group-hover:scale-110 transition-transform"
     />
   </div>
-  <span className="hidden md:inline text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
+  {/* Show name on all screen sizes */}
+  <span className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
     DigitalCollection
   </span>
 </Link>
