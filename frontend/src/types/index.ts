@@ -36,8 +36,11 @@ export interface Address {
 
 export interface Order {
   id: string;
-  userId: string;
+  orderId: string;
+  user: string;
   items: CartItem[];
+  phone: string;
+  paymentMethod: string;
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   createdAt: Date;

@@ -53,17 +53,23 @@ const AddAd: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-16 bg-white p-8 rounded shadow">
-      <h2 className="text-2xl font-bold mb-6">Add New Advertisement</h2>
-      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
-        <input name="title" type="text" placeholder="Title" value={form.title} onChange={handleChange} required className="w-full px-3 py-2 border rounded" />
-        <input name="subtitle" type="text" placeholder="Subtitle" value={form.subtitle} onChange={handleChange} className="w-full px-3 py-2 border rounded" />
-        <input name="link" type="text" placeholder="Link (optional)" value={form.link} onChange={handleChange} className="w-full px-3 py-2 border rounded" />
-        <input type="file" accept="image/*" onChange={handleImageChange} required className="w-full px-3 py-2 border rounded" />
-        {error && <div className="text-red-500">{error}</div>}
-        {success && <div className="text-green-500">{success}</div>}
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Add Advertisement</button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-blue-100">
+      <div className="w-full max-w-md bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-sky-200 p-8">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-8 text-center">
+          Add New Advertisement
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-5" encType="multipart/form-data">
+          <input name="title" type="text" placeholder="Title" value={form.title} onChange={handleChange} required className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input name="subtitle" type="text" placeholder="Subtitle" value={form.subtitle} onChange={handleChange} className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input name="link" type="text" placeholder="Link (optional)" value={form.link} onChange={handleChange} className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="file" accept="image/*" onChange={handleImageChange} required className="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          {error && <div className="text-red-500 text-center">{error}</div>}
+          {success && <div className="text-green-500 text-center">{success}</div>}
+          <button type="submit" className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 rounded-xl font-bold text-lg shadow-lg hover:from-sky-600 hover:to-blue-700 transition-all duration-300">
+            Add Advertisement
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

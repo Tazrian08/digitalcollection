@@ -20,6 +20,9 @@ import { AuthProvider } from './context/AuthContext';
 import AdminLogin from './pages/AdminLogin';
 import AddAdmin from './pages/AddAdmin';
 import AddAd from './pages/AddAd';
+import Checkout from './pages/Checkout';
+import ManageAds from './pages/ManageAds';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   return (
@@ -48,6 +51,9 @@ function App() {
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/add" element={<AddAdmin />} />
               <Route path="/admin/ad" element={<AddAd />} />
+              <Route path="/admin/manage-ads" element={<ManageAds />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>
           </main>
           <Footer />
