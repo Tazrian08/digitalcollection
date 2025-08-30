@@ -85,7 +85,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-bold text-gray-900 text-lg">Phone</p>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-gray-600">+880 1613-799099</p>
                   </div>
                 </div>
 
@@ -95,7 +95,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-bold text-gray-900 text-lg">Email</p>
-                    <p className="text-gray-600">support@digitalcollection.com</p>
+                    <p className="text-gray-600">digitalcollectioncamerashop<br />@gmail.com</p>
                   </div>
                 </div>
 
@@ -105,7 +105,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-bold text-gray-900 text-lg">Address</p>
-                    <p className="text-gray-600">123 Camera Street<br />Photography District, CA 90210</p>
+                    <p className="text-gray-600">Shop 42 New Super Market, Baitul Mukarram<br />Dhaka, Bangladesh</p>
                   </div>
                 </div>
 
@@ -128,17 +128,17 @@ const Contact: React.FC = () => {
               </h3>
               <div className="space-y-4">
                 <div className="p-4 bg-sky-50 rounded-2xl">
-                  <p className="font-bold text-gray-900 mb-1">Shipping Information</p>
-                  <p className="text-gray-600 text-sm">Free shipping on orders over $500</p>
+                  <p className="font-bold text-gray-900 mb-1">Order confirmation and Shipping</p>
+                  <p className="text-gray-600 text-sm">Using Whatsapp. Contact number: 01613-799099</p>
                 </div>
                 <div className="p-4 bg-emerald-50 rounded-2xl">
-                  <p className="font-bold text-gray-900 mb-1">Return Policy</p>
-                  <p className="text-gray-600 text-sm">30-day return window for all products</p>
+                  <p className="font-bold text-gray-900 mb-1">Order ID</p>
+                  <p className="text-gray-600 text-sm">Can be found in accounts tab.<br />Navigate to Accounts and switch to Orders tab </p>
                 </div>
-                <div className="p-4 bg-orange-50 rounded-2xl">
+                {/* <div className="p-4 bg-orange-50 rounded-2xl">
                   <p className="font-bold text-gray-900 mb-1">Warranty</p>
                   <p className="text-gray-600 text-sm">Extended warranty available on all items</p>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
