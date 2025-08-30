@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,6 +12,12 @@ const Register: React.FC = () => {
     phone: '',
     address: ''
   });
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

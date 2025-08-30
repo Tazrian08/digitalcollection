@@ -83,6 +83,10 @@ const Builder: React.FC = () => {
 
   const showNotice = (n: Exclude<Notice, null>) => setNotice(n);
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('builderState', JSON.stringify(selected));
   }, [selected]);

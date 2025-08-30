@@ -26,6 +26,10 @@ const Account: React.FC = () => {
   const [status, setStatus] = useState('');
   const [statusMsg, setStatusMsg] = useState('');
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (user) {
       setForm({

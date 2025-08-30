@@ -21,6 +21,10 @@ const ProductDetail: React.FC = () => {
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {

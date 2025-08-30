@@ -16,6 +16,11 @@ const Cart: React.FC = () => {
 
   const showNotice = (n: Exclude<Notice, null>) => setNotice(n);
 
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (!notice) return;
     const t = setTimeout(() => setNotice(null), 2500);

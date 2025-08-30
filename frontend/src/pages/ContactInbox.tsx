@@ -8,6 +8,10 @@ const ContactInbox: React.FC<{ user: any; token: string }> = ({ user, token }) =
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (!user?.isAdmin) return;
     const fetchContacts = async () => {
