@@ -63,6 +63,9 @@ const Home: React.FC = () => {
       {/* Ad Slider */}
       <AdSlider ads={ads} />
 
+      {/* Add spacing between AdSlider and QuadSliderSection */}
+      <div className="h-6 md:h-10"></div>
+
       {/* Quad Slider Section */}
       <QuadSliderSection />
 
