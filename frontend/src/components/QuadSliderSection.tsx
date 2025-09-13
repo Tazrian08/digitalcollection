@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SmallSlider from './SmallSlider';
 
@@ -8,7 +7,7 @@ import SmallSlider from './SmallSlider';
  * - Desktop: unchanged 2 columns, edge-aligned, uniform height via clamp.
  */
 
-const quadImages = {
+const quadImages: Record<string, string[]> = {
   topLeft: [
     'https://images.pexels.com/photos/51383/photo-camera-subject-photographer-51383.jpeg?auto=compress&w=1200',
     'https://images.pexels.com/photos/225157/pexels-photo-225157.jpeg?auto=compress&w=1200',
@@ -25,7 +24,7 @@ const quadImages = {
     'https://images.pexels.com/photos/225157/pexels-photo-225157.jpeg?auto=compress&w=1200',
     'https://images.pexels.com/photos/1983037/pexels-photo-1983037.jpeg?auto=compress&w=1200',
   ],
-} as const;
+};
 
 const tileClampStyle: React.CSSProperties = {
   height: 'clamp(300px, 42vh, 38vw)',
