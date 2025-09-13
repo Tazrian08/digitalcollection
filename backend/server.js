@@ -25,6 +25,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/compatibility', require('./routes/compatibilityRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/ads', require('./routes/adRoutes'));
+app.use('/api/quad-ads', require('./routes/quadAdRoutes'));
 
 // Base Route
 app.get('/', (req, res) => {

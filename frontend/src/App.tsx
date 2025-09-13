@@ -22,6 +22,7 @@ import AddAdmin from './pages/AddAdmin';
 import AddAd from './pages/AddAd';
 import Checkout from './pages/Checkout';
 import ManageAds from './pages/ManageAds';
+import ManageQuadAds from './pages/ManageQuadAds';
 import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
               <Route path="/admin/add" element={<AddAdmin />} />
               <Route path="/admin/ad" element={<AddAd />} />
               <Route path="/admin/manage-ads" element={<ManageAds />} />
+              <Route path="/manage-quad-ads" element={<ManageQuadAds />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>

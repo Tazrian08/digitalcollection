@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Package, Heart, Settings, MapPin, CreditCard, ShieldCheck } from 'lucide-react';
+import { User, Package, Heart, Settings, MapPin, CreditCard, ShieldCheck, Layers } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
@@ -207,12 +207,12 @@ const Account: React.FC = () => {
     ? [
         { id: 'profile', name: 'Profile', icon: User },
         { id: 'orders', name: 'Orders', icon: Package },
-        { id: 'contactInbox', name: 'Contact Inbox', icon: Heart }, // <-- new tab
+        { id: 'contactInbox', name: 'Contact Inbox', icon: Heart },
         { id: 'registerAdmin', name: 'Register Admin', icon: ShieldCheck },
         { id: 'addProduct', name: 'Add Product', icon: Package },
         { id: 'addAd', name: 'Add to Slider', icon: Package },
         { id: 'manageAds', name: 'Manage Ads', icon: Package },
-        
+        { id: 'manageQuadAds', name: 'Manage Quad Sliders', icon: Layers }, // <-- NEW TAB
       ]
     : [
         { id: 'profile', name: 'Profile', icon: User },
@@ -321,6 +321,10 @@ const Account: React.FC = () => {
       case 'registerAdmin':
         // Redirect to /admin/add
         window.location.href = '/admin/add';
+        return null;
+
+      case 'manageQuadAds':
+        window.location.href = '/manage-quad-ads';
         return null;
 
       default:
