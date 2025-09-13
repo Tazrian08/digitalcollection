@@ -164,3 +164,20 @@ exports.searchProducts = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Toggle stock status of a product
+exports.toggleStock = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    // Toggle stock between 0 and 1
+    product.stock = product.stock > 0 ? 0 : 1;
+    await product.save();
+
+    res.json({ message: 'Stock status updated', stock: product.stock });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error toggling stock' });
+  }
+};

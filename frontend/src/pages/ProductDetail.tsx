@@ -15,6 +15,7 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [togglingStock, setTogglingStock] = useState(false);
 
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -255,6 +256,30 @@ const ProductDetail: React.FC = () => {
                 Delete Product
               </button>
             )}
+            {user?.isAdmin && token && (
+              <button
+                onClick={async () => {
+                  setTogglingStock(true);
+                  try {
+                    const res = await fetch(`${apiBaseUrl}/api/products/${product._id}/toggle-stock`, {
+                      method: 'PATCH',
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message || 'Failed to toggle stock');
+                    setProduct((prev: any) => ({ ...prev, stock: data.stock }));
+                    setNotice({ type: 'success', message: data.stock > 0 ? 'Product is now in stock!' : 'Product is now out of stock!' });
+                  } catch (err: any) {
+                    setNotice({ type: 'error', message: err.message || 'Error toggling stock' });
+                  }
+                  setTogglingStock(false);
+                }}
+                className="mb-4 bg-yellow-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-yellow-600 transition"
+                disabled={togglingStock}
+              >
+                {product.stock > 0 ? 'Mark Out of Stock' : 'Mark In Stock'}
+              </button>
+            )}
 
             {/* Price */}
             <div className="flex items-center space-x-4 mb-6">
@@ -316,7 +341,7 @@ const ProductDetail: React.FC = () => {
               {product.stock > 0 ? (
                 <div className="flex items-center space-x-2 text-green-600">
                   <Check className="h-5 w-5" />
-                  <span className="font-medium">In Stock ({product.stock} available)</span>
+                  <span className="font-medium">In Stock</span>
                 </div>
               ) : (
                 <div className="text-red-600 font-medium">Out of Stock</div>
