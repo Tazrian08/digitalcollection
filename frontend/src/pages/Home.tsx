@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Truck, Shield, Headphones, Sparkles, Zap, Award } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import AdSlider from '../components/AdSlider';
+import QuadSliderSection from '../components/QuadSliderSection';
 
 import { Product, Ad } from '../types'; // Make sure this type exists
 
@@ -61,6 +62,9 @@ const Home: React.FC = () => {
     <div className="min-h-screen">
       {/* Ad Slider */}
       <AdSlider ads={ads} />
+
+      {/* Quad Slider Section */}
+      <QuadSliderSection />
 
       {/* Features Section */}
       <section className="py-20 bg-gradient-to-r from-white to-sky-50">
