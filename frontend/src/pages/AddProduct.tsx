@@ -1,5 +1,33 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+// Convert custom inline tags to safe HTML spans with classes:
+// [blue]text[/blue] -> <span class="dc-blue">text</span>
+// [xl]text[/xl], [lg]...[/lg], [sm]...[/sm] -> <span class="size-xl|lg|sm">text</span>
+function preprocessDescription(input: string): string {
+  return input
+    .replace(/\[blue\]([\s\S]*?)\[\/blue\]/g, '<span class="dc-blue">$1</span>')
+    .replace(/\[xl\]([\s\S]*?)\[\/xl\]/g, '<span class="size-xl">$1</span>')
+    .replace(/\[lg\]([\s\S]*?)\[\/lg\]/g, '<span class="size-lg">$1</span>')
+    .replace(/\[sm\]([\s\S]*?)\[\/sm\]/g, '<span class="size-sm">$1</span>');
+}
+
+// Allow span + class attribute in sanitize schema
+const sanitizeSchema: any = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    span: [
+      ...(defaultSchema.attributes?.span || []),
+      ['className', 'dc-blue', 'size-xl', 'size-lg', 'size-sm'],
+    ],
+  },
+};
 
 const AddProduct: React.FC = () => {
   const [form, setForm] = useState({
@@ -14,11 +42,15 @@ const AddProduct: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-    useEffect(() => {
+  const descRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -33,8 +65,9 @@ const AddProduct: React.FC = () => {
     setLoading(true);
     setMessage('');
     const data = new FormData();
+    // Save raw description (with custom tags); ProductDetail will preprocess on render
     Object.entries(form).forEach(([key, value]) => data.append(key, value));
-    images.forEach((img, idx) => data.append('images', img));
+    images.forEach((img) => data.append('images', img));
     try {
       const res = await fetch(`${apiBaseUrl}/api/products`, {
         method: 'POST',
@@ -53,84 +86,184 @@ const AddProduct: React.FC = () => {
     setLoading(false);
   };
 
+  // --- Toolbar helpers ---
+  const wrapSelection = (prefix: string, suffix?: string) => {
+    const ta = descRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart ?? 0;
+    const end = ta.selectionEnd ?? 0;
+    const before = form.description.slice(0, start);
+    const selected = form.description.slice(start, end);
+    const after = form.description.slice(end);
+    const sfx = suffix ?? prefix;
+    const updated = `${before}${prefix}${selected || 'Your text here'}${sfx}${after}`;
+    setForm((f) => ({ ...f, description: updated }));
+    // restore cursor
+    setTimeout(() => {
+      const pos = (before + prefix + (selected || 'Your text here') + sfx).length;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    }, 0);
+  };
+
+  const insertAtLineStart = (token: string) => {
+    const ta = descRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart ?? 0;
+    const end = ta.selectionEnd ?? 0;
+    const content = form.description;
+    const lineStart = content.lastIndexOf('\n', start - 1) + 1;
+    const before = content.slice(0, lineStart);
+    const sel = content.slice(lineStart, end);
+    const after = content.slice(end);
+    const updated = `${before}${token}${sel || 'Text'}\n` + after;
+    setForm((f) => ({ ...f, description: updated }));
+    setTimeout(() => {
+      const pos = (before + token + (sel || 'Text') + '\n').length;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    }, 0);
+  };
+
+  // For preview we preprocess to show colors/sizes, and we preserve whitespace
+  const previewHtml = preprocessDescription(form.description);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-sky-200 p-10 w-full max-w-lg">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-8 text-center">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-sky-200 p-6 sm:p-10 w-full max-w-4xl">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-6 text-center">
           Add Product
         </h2>
-        <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-5">
-          <input
-            name="name"
-            placeholder="Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <textarea
-            name="description"
-            placeholder="Description"
-            value={form.description}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            name="price"
-            type="number"
-            placeholder="Price"
-            value={form.price}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            name="brand"
-            placeholder="Brand"
-            value={form.brand}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select Category</option>
-            <option value="Camera">Camera</option>
-            <option value="Lens">Lens</option>
-            <option value="Accessory">Accessory</option>
-          </select>
-          <input
-            name="stock"
-            type="number"
-            placeholder="Stock"
-            value={form.stock}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="file"
-            name="images"
-            multiple
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 rounded-2xl font-bold text-lg shadow-lg hover:from-sky-600 hover:to-blue-700 transition-all duration-300"
-          >
-            {loading ? 'Adding...' : 'Add Product'}
-          </button>
+
+        <form onSubmit={handleSubmit} encType="multipart/form-data" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <input
+              name="name"
+              placeholder="Name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">Description (Markdown + custom tags)</label>
+                <div className="flex items-center gap-2 text-xs">
+                  <button type="button" onClick={() => wrapSelection('**')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bold">**B**</button>
+                  <button type="button" onClick={() => wrapSelection('_')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Italic">_i_</button>
+                  <button type="button" onClick={() => insertAtLineStart('# ')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H1">H1</button>
+                  <button type="button" onClick={() => insertAtLineStart('## ')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H2">H2</button>
+                  <button type="button" onClick={() => insertAtLineStart('- ')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bullet">•</button>
+                  <button type="button" onClick={() => wrapSelection('[', '](https://)')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Link">🔗</button>
+                  <span className="mx-1 h-4 w-px bg-gray-300" />
+                  <button type="button" onClick={() => wrapSelection('[blue]', '[/blue]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Light blue">Blue</button>
+                  <button type="button" onClick={() => wrapSelection('[xl]', '[/xl]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="XL size">XL</button>
+                  <button type="button" onClick={() => wrapSelection('[lg]', '[/lg]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Large size">Lg</button>
+                  <button type="button" onClick={() => wrapSelection('[sm]', '[/sm]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Small size">Sm</button>
+                </div>
+              </div>
+
+              <textarea
+                ref={descRef}
+                name="description"
+                placeholder={
+`Use **bold**, _italic_, # Headings, lists:
+- item 1
+- item 2
+
+Custom tags:
+[blue]text[/blue], [xl]Big text[/xl], [lg]Large[/lg], [sm]Small[/sm]
+`
+                }
+                value={form.description}
+                onChange={handleChange}
+                required
+                rows={12}
+                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Whitespace is preserved. Use custom tags for color/size: <code>[blue]...[/blue]</code>, <code>[xl]...[/xl]</code>, <code>[lg]...[/lg]</code>, <code>[sm]...[/sm]</code>.
+              </p>
+            </div>
+
+            <input
+              name="price"
+              type="number"
+              placeholder="Price"
+              value={form.price}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              name="brand"
+              placeholder="Brand"
+              value={form.brand}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select Category</option>
+              <option value="Camera">Camera</option>
+              <option value="Lens">Lens</option>
+              <option value="Accessory">Accessory</option>
+            </select>
+            <input
+              name="stock"
+              type="number"
+              placeholder="Stock"
+              value={form.stock}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="file"
+              name="images"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 rounded-2xl font-bold text-lg shadow-lg hover:from-sky-600 hover:to-blue-700 transition-all duration-300"
+            >
+              {loading ? 'Adding...' : 'Add Product'}
+            </button>
+            {message && <p className="mt-2 text-center text-sm font-semibold text-sky-700">{message}</p>}
+          </div>
+
+          {/* Live Preview */}
+          <div className="bg-white/70 rounded-2xl border border-sky-100 p-4 overflow-auto">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Description Preview</h3>
+            {/* Apply whitespace-preserving style on the container */}
+            <div className="prose max-w-none whitespace-pre-wrap">
+              <style>{`
+                .dc-blue { color: #38bdf8; } /* Tailwind sky-400 */
+                .size-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
+                .size-lg { font-size: 1.125rem; line-height: 1.75rem; }
+                .size-sm { font-size: 0.875rem; line-height: 1.25rem; }
+              `}</style>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+              >
+                {previewHtml || '*Start typing your description on the left…*'}
+              </ReactMarkdown>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">This is how it will appear on the product page.</p>
+          </div>
         </form>
-        {message && <p className="mt-4 text-center text-lg font-semibold text-sky-700">{message}</p>}
       </div>
     </div>
   );

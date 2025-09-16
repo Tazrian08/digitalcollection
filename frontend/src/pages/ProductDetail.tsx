@@ -1,11 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, ShoppingCart, Star, Check, Shield, Truck, XCircle, CheckCircle } from 'lucide-react';
-import { useCart } from '../hooks/useCart';
+import { ArrowLeft, Heart, ShoppingCart, Check, Shield, Truck, XCircle, CheckCircle } from 'lucide-react';
 import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../context/AuthContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+// Convert custom inline tags to safe HTML spans with classes
+function preprocessDescription(input: string): string {
+  return (input || '')
+    .replace(/\[blue\]([\s\S]*?)\[\/blue\]/g, '<span class="dc-blue">$1</span>')
+    .replace(/\[xl\]([\s\S]*?)\[\/xl\]/g, '<span class="size-xl">$1</span>')
+    .replace(/\[lg\]([\s\S]*?)\[\/lg\]/g, '<span class="size-lg">$1</span>')
+    .replace(/\[sm\]([\s\S]*?)\[\/sm\]/g, '<span class="size-sm">$1</span>');
+}
+
+// Allow span + class attribute for our custom formatting
+const sanitizeSchema: any = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    span: [
+      ...(defaultSchema.attributes?.span || []),
+      ['className', 'dc-blue', 'size-xl', 'size-lg', 'size-sm'],
+    ],
+  },
+};
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,14 +41,11 @@ const ProductDetail: React.FC = () => {
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [togglingStock, setTogglingStock] = useState(false);
 
-  const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
-    useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -63,10 +84,7 @@ const ProductDetail: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
-          <Link
-            to="/products"
-            className="text-blue-600 hover:text-blue-700 flex items-center justify-center space-x-2"
-          >
+          <Link to="/products" className="text-blue-600 hover:text-blue-700 flex items-center justify-center space-x-2">
             <ArrowLeft className="h-5 w-5" />
             <span>Back to Products</span>
           </Link>
@@ -93,7 +111,7 @@ const ProductDetail: React.FC = () => {
       });
       if (!res.ok) throw new Error('Failed to add to cart');
       setNotice({ type: 'success', message: 'Added to cart!' });
-    } catch (err) {
+    } catch {
       setNotice({ type: 'error', message: 'Error adding to cart.' });
     }
   };
@@ -122,20 +140,18 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
 
-  // Handle image paths (for local images)
   const getImageUrl = (img: string) => {
     if (!img) return '/placeholder.jpg';
     if (img.startsWith('http')) return img;
     const path = img.replace(/\\/g, '/');
     return `${apiBaseUrl}${path}`;
   };
+
+  // Preprocess + sanitize description; preserve whitespace when rendering
+  const processedDescription = preprocessDescription(product.description || '');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -150,7 +166,7 @@ const ProductDetail: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images & Quantity/Add to Cart */}
+          {/* Left: Images & CTAs */}
           <div>
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
               <img
@@ -165,20 +181,14 @@ const ProductDetail: React.FC = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                      selectedImage === index ? 'border-blue-600' : 'border-gray-200'
-                    }`}
+                    className={`w-20 h-20 rounded-lg overflow-hidden border-2 ${selectedImage === index ? 'border-blue-600' : 'border-gray-200'}`}
                   >
-                    <img
-                      src={getImageUrl(image)}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={getImageUrl(image)} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
             )}
-            {/* Quantity and Actions */}
+
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex items-center">
                 <label className="text-sm font-medium text-gray-700 mr-3">Quantity:</label>
@@ -189,13 +199,12 @@ const ProductDetail: React.FC = () => {
                   disabled={product.stock <= 0}
                 >
                   {[...Array(Math.min(10, product.stock))].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
-                    </option>
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
                   ))}
                 </select>
               </div>
             </div>
+
             <div className="flex space-x-4 mb-6">
               <button
                 onClick={handleAddToCart}
@@ -207,52 +216,27 @@ const ProductDetail: React.FC = () => {
               </button>
               <button
                 onClick={handleWishlistToggle}
-                className={`p-3 rounded-lg border-2 transition-colors ${
-                  isWishlisted
-                    ? 'border-red-500 text-red-500 bg-red-50'
-                    : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'
-                }`}
+                className={`p-3 rounded-lg border-2 transition-colors ${isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'}`}
               >
-                <Heart
-                  className="h-5 w-5"
-                  fill={isWishlisted ? 'currentColor' : 'none'}
-                />
+                <Heart className="h-5 w-5" fill={isWishlisted ? 'currentColor' : 'none'} />
               </button>
             </div>
           </div>
 
-          {/* Product Info */}
-          <div
-            className="bg-white rounded-lg shadow-md p-8 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-sky-400 scrollbar-track-sky-100"
-            style={{
-              maxHeight: 'calc(100vh - 6rem)', // Adjust for your header/footer height
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#38bdf8 #e0f2fe',
-              msOverflowStyle: 'none',
-            }}
-          >
+          {/* Right: Info */}
+          <div className="bg-white rounded-lg shadow-md p-8 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-sky-400 scrollbar-track-sky-100"
+               style={{ maxHeight: 'calc(100vh - 6rem)', scrollbarWidth: 'thin', scrollbarColor: '#38bdf8 #e0f2fe', msOverflowStyle: 'none' }}>
             <div className="flex items-center justify-between mb-4">
               <span className="text-blue-600 font-medium">{product.brand}</span>
               <div className="flex items-center space-x-2">
-                {product.isNew && (
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    New
-                  </span>
-                )}
-                {product.isBestseller && (
-                  <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-                    Bestseller
-                  </span>
-                )}
+                {product.isNew && <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">New</span>}
+                {product.isBestseller && <span className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">Bestseller</span>}
               </div>
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
             {user?.isAdmin && token && (
-              <button
-                onClick={handleDeleteProduct}
-                className="mb-4 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition"
-              >
+              <button onClick={handleDeleteProduct} className="mb-3 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition">
                 Delete Product
               </button>
             )}
@@ -283,58 +267,29 @@ const ProductDetail: React.FC = () => {
 
             {/* Price */}
             <div className="flex items-center space-x-4 mb-6">
-              <span className="text-3xl font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-xl text-gray-500 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
-              {product.originalPrice && (
-                <span className="bg-red-100 text-red-800 text-sm px-2 py-1 rounded">
-                  Save {formatPrice(product.originalPrice - product.price)}
-                </span>
-              )}
+              <span className="text-3xl font-bold text-gray-900">{formatPrice(product.price)}</span>
+              {product.originalPrice && <span className="text-xl text-gray-500 line-through">{formatPrice(product.originalPrice)}</span>}
+              {product.originalPrice && <span className="bg-red-100 text-red-800 text-sm px-2 py-1 rounded">Save {formatPrice(product.originalPrice - product.price)}</span>}
             </div>
 
-            {/* Description - move here, no scrolling */}
+            {/* Description (Markdown + custom tags), preserve whitespace */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">Description</h2>
-              <p className="text-gray-700 whitespace-pre-line">{product.description}</p>
+              <div className="prose max-w-none whitespace-pre-wrap">
+                <style>{`
+                  .dc-blue { color: #38bdf8; } /* match site light blue (sky-400) */
+                  .size-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
+                  .size-lg { font-size: 1.125rem; line-height: 1.75rem; }
+                  .size-sm { font-size: 0.875rem; line-height: 1.25rem; }
+                `}</style>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+                >
+                  {processedDescription}
+                </ReactMarkdown>
+              </div>
             </div>
-
-            {/* Features */}
-            {product.features && product.features.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Features</h3>
-                <ul className="space-y-2">
-                  {product.features.map((feature: string, index: number) => (
-                    <li key={index} className="flex items-center space-x-2">
-                      <Check className="h-4 w-4 text-green-600" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Compatibility */}
-            {product.compatibility && product.compatibility.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Compatibility</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.compatibility.map((item: string, index: number) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Stock Status */}
             <div className="mb-6">
@@ -381,26 +336,14 @@ const ProductDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Toast Notification */}
+        {/* Toast */}
         {notice && (
-          <div
-            className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold flex items-center gap-3
-              ${notice.type === 'success'
-                ? 'bg-gradient-to-r from-emerald-500 to-green-600'
-                : 'bg-gradient-to-r from-red-500 to-pink-600'}`}
-            role="status"
-            aria-live="polite"
-          >
-            {notice.type === 'success' ? (
-              <CheckCircle className="h-5 w-5 text-white" />
-            ) : (
-              <XCircle className="h-5 w-5 text-white" />
-            )}
+          <div className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold flex items-center gap-3
+              ${notice.type === 'success' ? 'bg-gradient-to-r from-emerald-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-pink-600'}`}
+               role="status" aria-live="polite">
+            {notice.type === 'success' ? <CheckCircle className="h-5 w-5 text-white" /> : <XCircle className="h-5 w-5 text-white" />}
             <span>{notice.message}</span>
-            <button
-              onClick={() => setNotice(null)}
-              className="ml-2 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-xs"
-            >
+            <button onClick={() => setNotice(null)} className="ml-2 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-xs">
               Dismiss
             </button>
           </div>
