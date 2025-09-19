@@ -141,7 +141,7 @@ const ProductDetail: React.FC = () => {
   };
 
   const formatPrice = (price: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(price);
 
   const getImageUrl = (img: string) => {
     if (!img) return '/placeholder.jpg';
