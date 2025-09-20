@@ -33,6 +33,7 @@ const AddProduct: React.FC = () => {
   const [form, setForm] = useState({
     name: '',
     description: '',
+    long_desc: '', // <-- Add this line
     price: '',
     brand: '',
     category: '',
@@ -75,7 +76,7 @@ const AddProduct: React.FC = () => {
       });
       if (res.ok) {
         setMessage('Product added!');
-        setForm({ name: '', description: '', price: '', brand: '', category: '', stock: '' });
+        setForm({ name: '', description: '', long_desc: '', price: '', brand: '', category: '', stock: '' });
         setImages([]);
       } else {
         setMessage('Error adding product');
@@ -186,6 +187,15 @@ Custom tags:
                 Whitespace is preserved. Use custom tags for color/size: <code>[blue]...[/blue]</code>, <code>[xl]...[/xl]</code>, <code>[lg]...[/lg]</code>, <code>[sm]...[/sm]</code>.
               </p>
             </div>
+
+            <textarea
+              name="long_desc"
+              placeholder="Full Description"
+              value={form.long_desc}
+              onChange={handleChange}
+              rows={8}
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono mt-2"
+            />
 
             <input
               name="price"

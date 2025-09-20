@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim:true },
   description: { type: String, required: true },
+  long_desc: { type: String }, // <-- Add this line
   price: { type: Number, required: true },
   brand: { type: String, required: true },
   category: { type: String, required: true }, // e.g., Camera, Lens, Accessory

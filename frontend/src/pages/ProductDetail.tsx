@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, ShoppingCart, Check, Shield, Truck, XCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Check, Shield, Truck, XCircle, CheckCircle } from 'lucide-react';
 import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../context/AuthContext';
 import ReactMarkdown from 'react-markdown';
@@ -56,6 +56,7 @@ const ProductDetail: React.FC = () => {
         if (!res.ok) throw new Error('Failed to fetch product');
         const data = await res.json();
         setProduct(data);
+        console.log(data);
       } catch (err: any) {
         setError(err.message || 'Error fetching product');
       } finally {
@@ -214,13 +215,22 @@ const ProductDetail: React.FC = () => {
                 <ShoppingCart className="h-5 w-5" />
                 <span>Add to Cart</span>
               </button>
-              <button
-                onClick={handleWishlistToggle}
-                className={`p-3 rounded-lg border-2 transition-colors ${isWishlisted ? 'border-red-500 text-red-500 bg-red-50' : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'}`}
-              >
-                <Heart className="h-5 w-5" fill={isWishlisted ? 'currentColor' : 'none'} />
-              </button>
             </div>
+
+            {/* Full Description below Add to Cart */}
+            {product.long_desc && (
+              <div className="bg-white rounded-lg shadow p-6 mb-6 hidden lg:block">
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Full Description</h2>
+                <div className="prose max-w-none whitespace-pre-wrap text-gray-700 break-words overflow-hidden">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+                  >
+                    {product.long_desc}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right: Info */}
@@ -272,7 +282,7 @@ const ProductDetail: React.FC = () => {
               {product.originalPrice && <span className="bg-red-100 text-red-800 text-sm px-2 py-1 rounded">Save {formatPrice(product.originalPrice - product.price)}</span>}
             </div>
 
-            {/* Description (Markdown + custom tags), preserve whitespace */}
+            {/* Description */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">Description</h2>
               <div className="prose max-w-none whitespace-pre-wrap">
@@ -290,6 +300,21 @@ const ProductDetail: React.FC = () => {
                 </ReactMarkdown>
               </div>
             </div>
+
+            {/* Full Description below Description in mobile view */}
+            {product.long_desc && (
+              <div className="bg-white rounded-lg shadow p-6 mb-6 block lg:hidden">
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Full Description</h2>
+                <div className="prose max-w-none whitespace-pre-wrap text-gray-700 break-words overflow-hidden">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+                  >
+                    {product.long_desc}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            )}
 
             {/* Stock Status */}
             <div className="mb-6">

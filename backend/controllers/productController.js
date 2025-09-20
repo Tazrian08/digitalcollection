@@ -45,8 +45,7 @@ exports.getProductById = async (req, res) => {
 // Add new product (admin level - here no admin role implemented but can be extended)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, brand, category, stock } = req.body;
-    // compatibility left empty
+    const { name, description, price, brand, category, stock, long_desc } = req.body; // <-- add long_desc here
     const compatibility = [];
     // Create folder for images
     const folderName = `images/${name}`;
@@ -71,6 +70,7 @@ exports.createProduct = async (req, res) => {
     const product = new Product({
       name,
       description,
+      long_desc, // <-- save long_desc here
       price,
       brand,
       category,
