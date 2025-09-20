@@ -12,6 +12,10 @@ const AddAd: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (!user?.isAdmin) navigate('/account');
   }, [user, navigate]);

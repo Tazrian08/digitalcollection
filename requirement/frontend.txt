@@ -1,1 +1,2 @@
 npm i --save-dev @types/node
+npm i react-markdown remark-gfm rehype-raw rehype-sanitize

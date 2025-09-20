@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, Sparkles } from 'lucide-react';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -10,6 +10,12 @@ const Contact: React.FC = () => {
     subject: '',
     message: ''
   });
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

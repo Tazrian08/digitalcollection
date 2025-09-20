@@ -45,8 +45,7 @@ exports.getProductById = async (req, res) => {
 // Add new product (admin level - here no admin role implemented but can be extended)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, brand, category, stock } = req.body;
-    // compatibility left empty
+    const { name, description, price, brand, category, stock, long_desc } = req.body; // <-- add long_desc here
     const compatibility = [];
     // Create folder for images
     const folderName = `images/${name}`;
@@ -71,6 +70,7 @@ exports.createProduct = async (req, res) => {
     const product = new Product({
       name,
       description,
+      long_desc, // <-- save long_desc here
       price,
       brand,
       category,
@@ -162,5 +162,22 @@ exports.searchProducts = async (req, res) => {
     res.json({ products: uniqueProducts });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Toggle stock status of a product
+exports.toggleStock = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    // Toggle stock between 0 and 1
+    product.stock = product.stock > 0 ? 0 : 1;
+    await product.save();
+
+    res.json({ message: 'Stock status updated', stock: product.stock });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error toggling stock' });
   }
 };

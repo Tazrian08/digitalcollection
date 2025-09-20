@@ -21,6 +21,10 @@ const Checkout: React.FC = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [orderId, setOrderId] = useState('');
 
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     const fetchCart = async () => {
       if (!token) {

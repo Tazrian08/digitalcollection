@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -11,6 +11,10 @@ const ForgotPassword: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [newPassword, setNewPassword] = useState('');
+
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Step 1: Ask for email
   const handleEmailSubmit = async (e: React.FormEvent) => {

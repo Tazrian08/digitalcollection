@@ -44,6 +44,11 @@ const Products: React.FC = () => {
     ? JSON.parse(decodeURIComponent(searchParams.get('builderState')!))
     : {};
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const selectedStock = searchParams.get('stock') || 'all';
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -75,6 +80,13 @@ const Products: React.FC = () => {
       filtered = filtered.filter(product => product.brand === selectedBrand);
     }
 
+    // In stock filter
+    if (selectedStock === 'in') {
+      filtered = filtered.filter(product => product.stock > 0);
+    } else if (selectedStock === 'out') {
+      filtered = filtered.filter(product => product.stock === 0);
+    }
+
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'price-low':
@@ -84,7 +96,6 @@ const Products: React.FC = () => {
         case 'rating':
           return (b.rating ?? 0) - (a.rating ?? 0);
         case 'newest':
-          // try createdAt; fallback to name
           const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           return bDate - aDate;
@@ -94,7 +105,7 @@ const Products: React.FC = () => {
     });
 
     return filtered;
-  }, [products, selectedCategory, selectedBrand, sortBy]);
+  }, [products, selectedCategory, selectedBrand, sortBy, selectedStock]);
 
   // Pagination math
   const totalItems = filteredProducts.length;
@@ -110,7 +121,7 @@ const Products: React.FC = () => {
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
-    if ((key === 'category' && value === 'All Categories') || (key === 'brand' && value === 'All Brands')) {
+    if ((key === 'category' && value === 'All Categories') || (key === 'brand' && value === 'All Brands') || (key === 'stock' && value === 'all')) {
       newParams.delete(key);
     } else {
       newParams.set(key, value);
@@ -283,6 +294,51 @@ const Products: React.FC = () => {
               <h3 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
                 Filters
               </h3>
+                            {/* In Stock Filter */}
+              <div>
+                <h4 className="font-bold text-gray-900 mb-4 text-lg">Stock</h4>
+                <div className="space-y-3">
+                  <label className="flex items-center group cursor-pointer">
+                    <input
+                      type="radio"
+                      name="stock"
+                      value="all"
+                      checked={selectedStock === 'all'}
+                      onChange={(e) => updateFilter('stock', e.target.value)}
+                      className="mr-3 text-sky-600 focus:ring-sky-500 w-4 h-4"
+                    />
+                    <span className="text-gray-700 group-hover:text-sky-600 transition-colors font-medium">
+                      All
+                    </span>
+                  </label>
+                  <label className="flex items-center group cursor-pointer">
+                    <input
+                      type="radio"
+                      name="stock"
+                      value="in"
+                      checked={selectedStock === 'in'}
+                      onChange={(e) => updateFilter('stock', e.target.value)}
+                      className="mr-3 text-sky-600 focus:ring-sky-500 w-4 h-4"
+                    />
+                    <span className="text-gray-700 group-hover:text-sky-600 transition-colors font-medium">
+                      In Stock
+                    </span>
+                  </label>
+                  <label className="flex items-center group cursor-pointer">
+                    <input
+                      type="radio"
+                      name="stock"
+                      value="out"
+                      checked={selectedStock === 'out'}
+                      onChange={(e) => updateFilter('stock', e.target.value)}
+                      className="mr-3 text-sky-600 focus:ring-sky-500 w-4 h-4"
+                    />
+                    <span className="text-gray-700 group-hover:text-sky-600 transition-colors font-medium">
+                      Out of Stock
+                    </span>
+                  </label>
+                </div>
+              </div>
 
               {/* Category Filter */}
               <div>
@@ -327,6 +383,8 @@ const Products: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+
             </div>
           </div>
 
