@@ -266,6 +266,16 @@ Custom tags:
               <option value="Camera">Camera</option>
               <option value="Lens">Lens</option>
               <option value="Accessory">Accessory</option>
+              <option value="Battery">Battery </option>
+              <option value="Drone">Drone </option>
+              <option value="Action Camera">Action Camera </option>
+              <option value="Gimbal">Gimbal </option>
+              <option value="Microphone">Microphone </option>
+              <option value="Flash Light">Flash Light </option>
+              <option value="Softbox">Softbox </option>
+              <option value="Charger">Charger </option>
+              <option value="Memory Card">Memory Card </option>
+
             </select>
             <input
               name="stock"
