@@ -33,7 +33,7 @@ const AddProduct: React.FC = () => {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    long_desc: '', // <-- Add this line
+    long_desc: '',
     price: '',
     brand: '',
     category: '',
@@ -44,6 +44,7 @@ const AddProduct: React.FC = () => {
   const [message, setMessage] = useState('');
 
   const descRef = useRef<HTMLTextAreaElement | null>(null);
+  const longDescRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -88,18 +89,22 @@ const AddProduct: React.FC = () => {
   };
 
   // --- Toolbar helpers ---
-  const wrapSelection = (prefix: string, suffix?: string) => {
-    const ta = descRef.current;
+  const wrapSelection = (
+    prefix: string,
+    suffix?: string,
+    ref?: React.RefObject<HTMLTextAreaElement>,
+    field: 'description' | 'long_desc' = 'description'
+  ) => {
+    const ta = ref?.current;
     if (!ta) return;
     const start = ta.selectionStart ?? 0;
     const end = ta.selectionEnd ?? 0;
-    const before = form.description.slice(0, start);
-    const selected = form.description.slice(start, end);
-    const after = form.description.slice(end);
+    const before = form[field].slice(0, start);
+    const selected = form[field].slice(start, end);
+    const after = form[field].slice(end);
     const sfx = suffix ?? prefix;
     const updated = `${before}${prefix}${selected || 'Your text here'}${sfx}${after}`;
-    setForm((f) => ({ ...f, description: updated }));
-    // restore cursor
+    setForm((f) => ({ ...f, [field]: updated }));
     setTimeout(() => {
       const pos = (before + prefix + (selected || 'Your text here') + sfx).length;
       ta.focus();
@@ -107,18 +112,22 @@ const AddProduct: React.FC = () => {
     }, 0);
   };
 
-  const insertAtLineStart = (token: string) => {
-    const ta = descRef.current;
+  const insertAtLineStart = (
+    token: string,
+    ref?: React.RefObject<HTMLTextAreaElement>,
+    field: 'description' | 'long_desc' = 'description'
+  ) => {
+    const ta = ref?.current;
     if (!ta) return;
     const start = ta.selectionStart ?? 0;
     const end = ta.selectionEnd ?? 0;
-    const content = form.description;
+    const content = form[field];
     const lineStart = content.lastIndexOf('\n', start - 1) + 1;
     const before = content.slice(0, lineStart);
     const sel = content.slice(lineStart, end);
     const after = content.slice(end);
     const updated = `${before}${token}${sel || 'Text'}\n` + after;
-    setForm((f) => ({ ...f, description: updated }));
+    setForm((f) => ({ ...f, [field]: updated }));
     setTimeout(() => {
       const pos = (before + token + (sel || 'Text') + '\n').length;
       ta.focus();
@@ -128,6 +137,7 @@ const AddProduct: React.FC = () => {
 
   // For preview we preprocess to show colors/sizes, and we preserve whitespace
   const previewHtml = preprocessDescription(form.description);
+  const longDescPreviewHtml = preprocessDescription(form.long_desc);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-50 flex items-center justify-center">
@@ -147,24 +157,24 @@ const AddProduct: React.FC = () => {
               className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
+            {/* Description Field */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-gray-700">Description (Markdown + custom tags)</label>
                 <div className="flex items-center gap-2 text-xs">
-                  <button type="button" onClick={() => wrapSelection('**')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bold">**B**</button>
-                  <button type="button" onClick={() => wrapSelection('_')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Italic">_i_</button>
-                  <button type="button" onClick={() => insertAtLineStart('# ')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H1">H1</button>
-                  <button type="button" onClick={() => insertAtLineStart('## ')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H2">H2</button>
-                  <button type="button" onClick={() => insertAtLineStart('- ')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bullet">•</button>
-                  <button type="button" onClick={() => wrapSelection('[', '](https://)')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Link">🔗</button>
+                  <button type="button" onClick={() => wrapSelection('**', undefined, descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bold">**B**</button>
+                  <button type="button" onClick={() => wrapSelection('_', undefined, descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Italic">_i_</button>
+                  <button type="button" onClick={() => insertAtLineStart('# ', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H1">H1</button>
+                  <button type="button" onClick={() => insertAtLineStart('## ', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H2">H2</button>
+                  <button type="button" onClick={() => insertAtLineStart('- ', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bullet">•</button>
+                  <button type="button" onClick={() => wrapSelection('[', '](https://)', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Link">🔗</button>
                   <span className="mx-1 h-4 w-px bg-gray-300" />
-                  <button type="button" onClick={() => wrapSelection('[blue]', '[/blue]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Light blue">Blue</button>
-                  <button type="button" onClick={() => wrapSelection('[xl]', '[/xl]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="XL size">XL</button>
-                  <button type="button" onClick={() => wrapSelection('[lg]', '[/lg]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Large size">Lg</button>
-                  <button type="button" onClick={() => wrapSelection('[sm]', '[/sm]')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Small size">Sm</button>
+                  <button type="button" onClick={() => wrapSelection('[blue]', '[/blue]', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Light blue">Blue</button>
+                  <button type="button" onClick={() => wrapSelection('[xl]', '[/xl]', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="XL size">XL</button>
+                  <button type="button" onClick={() => wrapSelection('[lg]', '[/lg]', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Large size">Lg</button>
+                  <button type="button" onClick={() => wrapSelection('[sm]', '[/sm]', descRef, 'description')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Small size">Sm</button>
                 </div>
               </div>
-
               <textarea
                 ref={descRef}
                 name="description"
@@ -188,14 +198,45 @@ Custom tags:
               </p>
             </div>
 
-            <textarea
-              name="long_desc"
-              placeholder="Full Description"
-              value={form.long_desc}
-              onChange={handleChange}
-              rows={8}
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono mt-2"
-            />
+            {/* Full Description Field with toolbar */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">Full Description (Markdown + custom tags)</label>
+                <div className="flex items-center gap-2 text-xs">
+                  <button type="button" onClick={() => wrapSelection('**', undefined, longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bold">**B**</button>
+                  <button type="button" onClick={() => wrapSelection('_', undefined, longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Italic">_i_</button>
+                  <button type="button" onClick={() => insertAtLineStart('# ', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H1">H1</button>
+                  <button type="button" onClick={() => insertAtLineStart('## ', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="H2">H2</button>
+                  <button type="button" onClick={() => insertAtLineStart('- ', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Bullet">•</button>
+                  <button type="button" onClick={() => wrapSelection('[', '](https://)', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Link">🔗</button>
+                  <span className="mx-1 h-4 w-px bg-gray-300" />
+                  <button type="button" onClick={() => wrapSelection('[blue]', '[/blue]', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Light blue">Blue</button>
+                  <button type="button" onClick={() => wrapSelection('[xl]', '[/xl]', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="XL size">XL</button>
+                  <button type="button" onClick={() => wrapSelection('[lg]', '[/lg]', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Large size">Lg</button>
+                  <button type="button" onClick={() => wrapSelection('[sm]', '[/sm]', longDescRef, 'long_desc')} className="px-2 py-1 rounded border hover:bg-gray-50" title="Small size">Sm</button>
+                </div>
+              </div>
+              <textarea
+                ref={longDescRef}
+                name="long_desc"
+                placeholder={
+`Use **bold**, _italic_, # Headings, lists:
+- item 1
+- item 2
+
+Custom tags:
+[blue]text[/blue], [xl]Big text[/xl], [lg]Large[/lg], [sm]Small[/sm]
+`
+                }
+                value={form.long_desc}
+                onChange={handleChange}
+                rows={12}
+                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Whitespace is preserved. Use custom tags for color/size: <code>[blue]...[/blue]</code>, <code>[xl]...[/xl]</code>, <code>[lg]...[/lg]</code>, <code>[sm]...[/sm]</code>.
+              </p>
+            </div>
 
             <input
               name="price"
@@ -256,10 +297,9 @@ Custom tags:
           {/* Live Preview */}
           <div className="bg-white/70 rounded-2xl border border-sky-100 p-4 overflow-auto">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Description Preview</h3>
-            {/* Apply whitespace-preserving style on the container */}
             <div className="prose max-w-none whitespace-pre-wrap">
               <style>{`
-                .dc-blue { color: #38bdf8; } /* Tailwind sky-400 */
+                .dc-blue { color: #38bdf8; }
                 .size-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
                 .size-lg { font-size: 1.125rem; line-height: 1.75rem; }
                 .size-sm { font-size: 0.875rem; line-height: 1.25rem; }
@@ -269,6 +309,15 @@ Custom tags:
                 rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
               >
                 {previewHtml || '*Start typing your description on the left…*'}
+              </ReactMarkdown>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Full Description Preview</h3>
+            <div className="prose max-w-none whitespace-pre-wrap">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+              >
+                {longDescPreviewHtml || '*Start typing your full description above…*'}
               </ReactMarkdown>
             </div>
             <p className="text-xs text-gray-500 mt-3">This is how it will appear on the product page.</p>
