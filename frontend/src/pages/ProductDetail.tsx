@@ -153,6 +153,7 @@ const ProductDetail: React.FC = () => {
 
   // Preprocess + sanitize description; preserve whitespace when rendering
   const processedDescription = preprocessDescription(product.description || '');
+  const processedLongDesc = preprocessDescription(product.long_desc || '');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -217,7 +218,7 @@ const ProductDetail: React.FC = () => {
               </button>
             </div>
 
-            {/* Full Description below Add to Cart */}
+            {/* Full Description below Add to Cart (desktop) */}
             {product.long_desc && (
               <div className="bg-white rounded-lg shadow p-6 mb-6 hidden lg:block">
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">Full Description</h2>
@@ -226,7 +227,7 @@ const ProductDetail: React.FC = () => {
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                   >
-                    {product.long_desc}
+                    {processedLongDesc}
                   </ReactMarkdown>
                 </div>
               </div>
@@ -310,7 +311,7 @@ const ProductDetail: React.FC = () => {
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
                   >
-                    {product.long_desc}
+                    {processedLongDesc}
                   </ReactMarkdown>
                 </div>
               </div>
