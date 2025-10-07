@@ -218,20 +218,8 @@ const ProductDetail: React.FC = () => {
               </button>
             </div>
 
-            {/* Full Description below Add to Cart (desktop) */}
-            {product.long_desc && (
-              <div className="bg-white rounded-lg shadow p-6 mb-6 hidden lg:block">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Full Description</h2>
-                <div className="prose max-w-none whitespace-pre-wrap text-gray-700 break-words overflow-hidden">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
-                  >
-                    {processedLongDesc}
-                  </ReactMarkdown>
-                </div>
-              </div>
-            )}
+            {/* Full Description below Add to Cart (desktop) -- moved to full-width section below the grid */}
+            {/* (No content here to avoid duplication) */}
           </div>
 
           {/* Right: Info */}
@@ -346,6 +334,33 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Full-width Desktop Only: Full Description */}
+        {product.long_desc && (
+          <div className="mt-8 hidden lg:block">
+            <div className="bg-white rounded-lg shadow p-8">
+              {/* Highlighted title box */}
+              <div className="inline-block mb-4 rounded-xl border border-sky-300 bg-sky-50/70 px-4 py-2">
+                <h2 className="text-xl font-semibold text-sky-700 tracking-wide">Full Description</h2>
+              </div>
+              <div className="prose max-w-none whitespace-pre-wrap text-gray-700 break-words overflow-hidden">
+                <style>{`
+                  .dc-blue { color: #38bdf8; } /* match site light blue (sky-400) */
+                  .size-xl { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
+                  .size-lg { font-size: 1.125rem; line-height: 1.75rem; }
+                  .size-sm { font-size: 0.875rem; line-height: 1.25rem; }
+                `}</style>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
+                >
+                  {processedLongDesc}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Specifications */}
         {product.specifications && (
