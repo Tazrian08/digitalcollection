@@ -5,18 +5,21 @@ import ProductCard from '../components/ProductCard';
 import AdSlider from '../components/AdSlider';
 import QuadSliderSection from '../components/QuadSliderSection';
 
-import { Product, Ad } from '../types'; // Make sure this type exists
+// Import your certification asset
+import certificationImg from '../../assets/certification.png';
+
+import { Product, Ad } from '../types';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-
 
 const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCertModal, setShowCertModal] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
@@ -28,7 +31,6 @@ const Home: React.FC = () => {
         const res = await fetch(`${apiBaseUrl}/api/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
         const data = await res.json();
-
         setProducts(data.products);
       } catch (err: any) {
         setError(err.message || 'Error fetching products');
@@ -50,13 +52,10 @@ const Home: React.FC = () => {
         console.error('Error fetching ads:', err.message);
       }
     };
-
     fetchAds();
   }, []);
 
   const featuredProducts = products.filter((_, i) => [1, 2, 3, 5].includes(i));
-
-  
 
   return (
     <div className="min-h-screen">
@@ -69,7 +68,54 @@ const Home: React.FC = () => {
       {/* Quad Slider Section */}
       <QuadSliderSection />
 
-      {/* Features Section */}
+      {/* Certification Section */}
+      <section className="py-8 bg-white flex justify-center items-center">
+        <div className="flex flex-col items-center">
+          <button
+            className="focus:outline-none"
+            onClick={() => setShowCertModal(true)}
+            aria-label="Sony Certification"
+          >
+            <img
+              src={certificationImg}
+              alt="Sony Authorized Certification - 18 Months Warranty"
+              className="h-32 w-auto md:h-40 transition-transform hover:scale-105"
+              style={{ boxShadow: '0 4px 24px rgba(56,189,248,0.12)' }}
+            />
+          </button>
+          <span className="mt-3 text-sm text-gray-700 font-medium">
+            Official Sony Authorized Shop & Warranty
+          </span>
+        </div>
+        {/* Modal */}
+        {showCertModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center relative">
+              <button
+                className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl font-bold"
+                onClick={() => setShowCertModal(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <img
+                src={certificationImg}
+                alt="Sony Certification"
+                className="h-24 mx-auto mb-4"
+              />
+              <h3 className="text-xl font-bold mb-2 text-sky-700">Sony Authorized</h3>
+              <p className="text-gray-700 mb-2">
+                We are a Sony authorized e-commerce shop.
+              </p>
+              <p className="text-gray-700 font-semibold">
+                All eligible products come with <span className="text-sky-600">18 months official warranty</span> serviced by Sony Singapore.
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Why Choose DigitalCollection Section (move back above categories) */}
       <section className="py-20 bg-gradient-to-r from-white to-sky-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -80,7 +126,6 @@ const Home: React.FC = () => {
               Experience the difference with our premium services and commitment to excellence
             </p>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-sky-100 to-blue-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -89,7 +134,6 @@ const Home: React.FC = () => {
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Free Shipping</h3>
               <p className="text-gray-600 leading-relaxed">Free shipping on orders over $500 with express delivery options available</p>
             </div>
-            
             <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-emerald-100 to-green-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Shield className="h-10 w-10 text-emerald-600" />
@@ -97,7 +141,6 @@ const Home: React.FC = () => {
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Warranty Protection</h3>
               <p className="text-gray-600 leading-relaxed">Extended warranty coverage on all products with comprehensive protection plans</p>
             </div>
-            
             <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-orange-100 to-pink-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Headphones className="h-10 w-10 text-orange-600" />
@@ -109,7 +152,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Featured Products Section (move back above categories) */}
       <section className="py-20 bg-gradient-to-br from-sky-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -124,7 +167,6 @@ const Home: React.FC = () => {
               Explore our best-selling cameras and equipment, carefully selected for professionals and enthusiasts.
             </p>
           </div>
-          
           {loading ? (
             <div className="text-center text-lg text-gray-500">Loading products...</div>
           ) : error ? (
@@ -136,7 +178,6 @@ const Home: React.FC = () => {
               ))}
             </div>
           )}
-          
           <div className="text-center">
             <Link
               to="/products"
@@ -149,7 +190,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Categories Section */}
+      {/* Shop by Category Section (move back below featured/why choose) */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -160,7 +201,6 @@ const Home: React.FC = () => {
               Find exactly what you need for your photography and videography projects.
             </p>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Link
               to="/products?category=Camera"
