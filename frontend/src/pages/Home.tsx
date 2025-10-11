@@ -115,44 +115,7 @@ const Home: React.FC = () => {
         )}
       </section>
 
-      {/* Why Choose DigitalCollection Section (move back above categories) */}
-      <section className="py-20 bg-gradient-to-r from-white to-sky-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4">
-              Why Choose DigitalCollection?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Experience the difference with our premium services and commitment to excellence
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-sky-100 to-blue-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Truck className="h-10 w-10 text-sky-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">Free Shipping</h3>
-              <p className="text-gray-600 leading-relaxed">Free shipping on orders over $500 with express delivery options available</p>
-            </div>
-            <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-emerald-100 to-green-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Shield className="h-10 w-10 text-emerald-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">Warranty Protection</h3>
-              <p className="text-gray-600 leading-relaxed">Extended warranty coverage on all products with comprehensive protection plans</p>
-            </div>
-            <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-orange-100 to-pink-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Headphones className="h-10 w-10 text-orange-600" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">Expert Support</h3>
-              <p className="text-gray-600 leading-relaxed">24/7 technical support from photography professionals and equipment experts</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products Section (move back above categories) */}
+      {/* Featured Products Section */}
       <section className="py-20 bg-gradient-to-br from-sky-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -190,7 +153,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Shop by Category Section (move back below featured/why choose) */}
+      {/* Shop by Category Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -267,6 +230,43 @@ const Home: React.FC = () => {
                 </div>
               </div>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose DigitalCollection Section (now last, just above footer) */}
+      <section className="py-20 bg-gradient-to-r from-white to-sky-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4">
+              Why Choose DigitalCollection?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Experience the difference with our premium services and commitment to excellence
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-sky-100 to-blue-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Truck className="h-10 w-10 text-sky-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">Free Shipping</h3>
+              <p className="text-gray-600 leading-relaxed">Free shipping on orders over $500 with express delivery options available</p>
+            </div>
+            <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-emerald-100 to-green-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Shield className="h-10 w-10 text-emerald-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">Warranty Protection</h3>
+              <p className="text-gray-600 leading-relaxed">Extended warranty coverage on all products with comprehensive protection plans</p>
+            </div>
+            <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
+              <div className="bg-gradient-to-br from-orange-100 to-pink-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Headphones className="h-10 w-10 text-orange-600" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">Expert Support</h3>
+              <p className="text-gray-600 leading-relaxed">24/7 technical support from photography professionals and equipment experts</p>
+            </div>
           </div>
         </div>
       </section>
