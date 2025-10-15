@@ -147,11 +147,13 @@ const Home: React.FC = () => {
               >
                 ×
               </button>
-              <img
-                src={djiImg}
-                alt="DJI Certification"
-                className="h-24 mx-auto mb-4"
-              />
+                <img
+                  src={djiImg}
+                  alt="DJI Certification"
+                  className="h-24 mx-auto mb-4 bg-black p-3 rounded-xl"
+                  style={{ boxShadow: '0 4px 24px rgba(56,189,248,0.12)' }}
+                />
+
               <h3 className="text-xl font-bold mb-2 text-sky-700">DJI Authorized</h3>
               <p className="text-gray-700 mb-2">
                 We are DJI authorized.
