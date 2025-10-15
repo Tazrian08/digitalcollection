@@ -5,8 +5,9 @@ import ProductCard from '../components/ProductCard';
 import AdSlider from '../components/AdSlider';
 import QuadSliderSection from '../components/QuadSliderSection';
 
-// Import your certification asset
+// Import your certification assets
 import certificationImg from '../../assets/certification.png';
+import djiImg from '../../assets/DJI.png';
 
 import { Product, Ad } from '../types';
 
@@ -18,6 +19,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCertModal, setShowCertModal] = useState(false);
+  const [showDJIModal, setShowDJIModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -70,24 +72,45 @@ const Home: React.FC = () => {
 
       {/* Certification Section */}
       <section className="py-8 bg-white flex justify-center items-center">
-        <div className="flex flex-col items-center">
-          <button
-            className="focus:outline-none"
-            onClick={() => setShowCertModal(true)}
-            aria-label="Sony Certification"
-          >
-            <img
-              src={certificationImg}
-              alt="Sony Authorized Certification - 18 Months Warranty"
-              className="h-32 w-auto md:h-40 transition-transform hover:scale-105"
-              style={{ boxShadow: '0 4px 24px rgba(56,189,248,0.12)' }}
-            />
-          </button>
-          <span className="mt-3 text-sm text-gray-700 font-medium">
-            Official Sony Authorized Shop & Warranty
-          </span>
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          {/* Sony Certification */}
+          <div className="flex flex-col items-center">
+            <button
+              className="focus:outline-none"
+              onClick={() => setShowCertModal(true)}
+              aria-label="Sony Certification"
+            >
+              <img
+                src={certificationImg}
+                alt="Sony Authorized Certification - 18 Months Warranty"
+                className="h-32 w-auto md:h-40 transition-transform hover:scale-105"
+                style={{ boxShadow: '0 4px 24px rgba(56,189,248,0.12)' }}
+              />
+            </button>
+            <span className="mt-3 text-sm text-gray-700 font-medium">
+              Official Sony Authorized Shop & Warranty
+            </span>
+          </div>
+          {/* DJI Certification */}
+          <div className="flex flex-col items-center">
+            <button
+              className="focus:outline-none"
+              onClick={() => setShowDJIModal(true)}
+              aria-label="DJI Certification"
+            >
+             <img
+  src={djiImg}
+  alt="DJI Authorized Reseller"
+  className="h-32 w-auto md:h-40 transition-transform hover:scale-105 bg-black p-4 rounded-xl"
+  style={{ boxShadow: '0 4px 24px rgba(56,189,248,0.12)' }}
+/>
+            </button>
+            <span className="mt-3 text-sm text-gray-700 font-medium">
+              DJI Authorized Reseller
+            </span>
+          </div>
         </div>
-        {/* Modal */}
+        {/* Sony Modal */}
         {showCertModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center relative">
@@ -109,6 +132,32 @@ const Home: React.FC = () => {
               </p>
               <p className="text-gray-700 font-semibold">
                 All eligible products come with <span className="text-sky-600">18 months official warranty</span> serviced by Sony Singapore.
+              </p>
+            </div>
+          </div>
+        )}
+        {/* DJI Modal */}
+        {showDJIModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center relative">
+              <button
+                className="absolute top-3 right-3 text-gray-400 hover:text-red-500 text-2xl font-bold"
+                onClick={() => setShowDJIModal(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <img
+                src={djiImg}
+                alt="DJI Certification"
+                className="h-24 mx-auto mb-4"
+              />
+              <h3 className="text-xl font-bold mb-2 text-sky-700">DJI Authorized</h3>
+              <p className="text-gray-700 mb-2">
+                We are DJI authorized.
+              </p>
+              <p className="text-gray-700 font-semibold">
+                Shop with confidence for genuine DJI products and support.
               </p>
             </div>
           </div>
