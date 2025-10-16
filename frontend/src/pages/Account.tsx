@@ -148,20 +148,20 @@ const Account: React.FC = () => {
   // Order display component
   const OrderDisplay = ({ order }: { order: any }) => (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h3 className="text-xl font-bold mb-2">Order {order.orderId}</h3>
+      <h3 className="text-xl font-bold mb-2">Order {order.orderId || 'N/A'}</h3>
       <div className="mb-2">
         <span className="font-semibold">User:</span> {order.user?.name || ''} <br />
         <span className="font-semibold">Email:</span> {order.user?.email || ''} <br />
         <span className="font-semibold">Phone:</span> {order.user?.phone || ''}
       </div>
       <div className="mb-2">
-        <span className="font-semibold">Shipping Address:</span> {order.shippingAddress}
+        <span className="font-semibold">Shipping Address:</span> {order.shippingAddress || ''}
       </div>
       <div className="mb-2">
-        <span className="font-semibold">Payment Method:</span> {order.paymentMethod}
+        <span className="font-semibold">Payment Method:</span> {order.paymentMethod || ''}
       </div>
       <div className="mb-2">
-        <span className="font-semibold">Status:</span> {order.status}
+        <span className="font-semibold">Status:</span> {order.status || ''}
       </div>
       <div className="mb-2">
         <span className="font-semibold">Shipping Phone:</span> {order.phone || ''}
@@ -169,9 +169,9 @@ const Account: React.FC = () => {
       <div className="mb-2">
         <span className="font-semibold">Items:</span>
         <ul className="list-disc ml-6">
-          {order.items.map((item: any) => (
-            <li key={item.product._id}>
-              {item.product.name} x{item.quantity} - {item.price}
+          {(order.items || []).map((item: any, idx: number) => (
+            <li key={item?.product?._id || idx}>
+              {item?.product?.name || 'Unknown'} x{item?.quantity || 0} - {item?.price || 0}
             </li>
           ))}
         </ul>
@@ -189,7 +189,6 @@ const Account: React.FC = () => {
             <option value="Delivered">Delivered</option>
             <option value="Cancelled">Cancelled</option>
           </select>
-
           <button
             onClick={handleStatusUpdate}
             className="bg-blue-600 text-white px-4 py-2 rounded"
@@ -298,17 +297,17 @@ const Account: React.FC = () => {
               )}
             </form>
             {/* Non-admin: show filtered orders */}
-            {!user?.isAdmin && filteredOrders.length === 0 && (
+            {!user?.isAdmin && (!filteredOrders || filteredOrders.length === 0) && (
               <div>No orders found.</div>
             )}
             {!user?.isAdmin &&
-              filteredOrders.map(order => <OrderDisplay key={order._id} order={order} />)}
+              (filteredOrders || []).map(order => <OrderDisplay key={order._id} order={order} />)}
             {/* Admin: show selected order */}
-            {user?.isAdmin && selectedOrder && !selectedOrder.error && (
-              <OrderDisplay order={selectedOrder} />
-            )}
             {user?.isAdmin && selectedOrder && selectedOrder.error && (
               <div className="text-red-600">{selectedOrder.error}</div>
+            )}
+            {user?.isAdmin && selectedOrder && !selectedOrder.error && (
+              <OrderDisplay order={selectedOrder} />
             )}
           </div>
         );
