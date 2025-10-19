@@ -23,6 +23,7 @@ const brands = [
   'Fujifilm',
   'Panasonic',
   'Olympus',
+  'VILTROX',
 ];
 
 const PAGE_SIZE = 15;
