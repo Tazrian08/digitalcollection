@@ -5,7 +5,7 @@ const path = require('path');
 // Get all products with optional search and pagination
 exports.getProducts = async (req, res) => {
   try {
-    const { keyword, category, brand, page = 1, limit = 20 } = req.query;
+    const { keyword, category, brand, page = 1, limit = 500 } = req.query;
     const query = {};
 
     if(keyword){
