@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, Grid, List, Sparkles } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
@@ -33,93 +33,67 @@ const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]); // now contains only current page items
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   // Query params
   const selectedCategory = searchParams.get('category') || 'All Categories';
   const selectedBrand = searchParams.get('brand') || 'All Brands';
   const sortBy = searchParams.get('sort') || 'name';
-  const fromBuilder = searchParams.get('fromBuilder') === '1';
-  const builderState = searchParams.get('builderState')
-    ? JSON.parse(decodeURIComponent(searchParams.get('builderState')!))
-    : {};
   const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const selectedStock = searchParams.get('stock') || 'all';
+  const keyword = searchParams.get('keyword') || searchParams.get('q') || '';
+
+  // --- Fix: ensure builder vars exist to avoid ReferenceError ---
+  // If you use a page-builder feature later, replace these with actual values.
+  const fromBuilder: boolean = false;
+  const builderState: any = null;
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Fetch server-side (only current page + filters)
   useEffect(() => {
+    const controller = new AbortController();
     const fetchProducts = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`${apiBaseUrl}/api/products`);
+
+        const params = new URLSearchParams();
+        if (selectedCategory !== 'All Categories') params.set('category', selectedCategory);
+        if (selectedBrand !== 'All Brands') params.set('brand', selectedBrand);
+        if (sortBy) params.set('sort', sortBy);
+        if (currentPage) params.set('page', String(currentPage));
+        params.set('limit', String(PAGE_SIZE));
+        if (selectedStock !== 'all') params.set('stock', selectedStock);
+        if (keyword) params.set('keyword', keyword);
+
+        const url = `${apiBaseUrl}/api/products?${params.toString()}`;
+        const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error('Failed to fetch products');
         const data = await res.json();
-        setProducts(data.products);
+        setProducts(data.products || []);
+        setTotalItems(data.total ?? (data.products || []).length);
       } catch (err: any) {
-        setError(err.message || 'Error fetching products');
+        if (err.name !== 'AbortError') setError(err.message || 'Error fetching products');
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, []);
+    return () => controller.abort();
+  }, [selectedCategory, selectedBrand, sortBy, currentPage, selectedStock, keyword]);
 
-  // Filter + sort (does not paginate; this prepares the full filtered list)
-  const filteredProducts = useMemo(() => {
-    let filtered = [...products];
+  // Pagination math (based on totalItems returned from server)
+  const totalPages = Math.max(1, Math.ceil((totalItems || 0) / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
 
-    if (selectedCategory !== 'All Categories') {
-      filtered = filtered.filter(product => product.category === selectedCategory);
-    }
-
-    if (selectedBrand !== 'All Brands') {
-      filtered = filtered.filter(product => product.brand === selectedBrand);
-    }
-
-    // In stock filter
-    if (selectedStock === 'in') {
-      filtered = filtered.filter(product => product.stock > 0);
-    } else if (selectedStock === 'out') {
-      filtered = filtered.filter(product => product.stock === 0);
-    }
-
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return (a.price ?? 0) - (b.price ?? 0);
-        case 'price-high':
-          return (b.price ?? 0) - (a.price ?? 0);
-        case 'rating':
-          return (b.rating ?? 0) - (a.rating ?? 0);
-        case 'newest':
-          const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return bDate - aDate;
-        default:
-          return String(a.name || '').localeCompare(String(b.name || ''));
-      }
-    });
-
-    return filtered;
-  }, [products, selectedCategory, selectedBrand, sortBy, selectedStock]);
-
-  // Pagination math
-  const totalItems = filteredProducts.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
-  const safePage = Math.min(currentPage, totalPages); // guard if filters shrink results
-
-  // Slice ONLY the current page items (ensures only 15 are rendered)
-  const currentPageItems = useMemo(() => {
-    const start = (safePage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return filteredProducts.slice(start, end);
-  }, [filteredProducts, safePage]);
+  // Current page items are the server results
+  const currentPageItems = products;
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -233,7 +207,7 @@ const Products: React.FC = () => {
               Products
             </h1>
             <p className="text-gray-600 text-lg">
-              Showing {(currentPageItems.length)} of {totalItems} products
+              Showing {currentPageItems.length} of {totalItems} products
             </p>
           </div>
 
@@ -411,9 +385,6 @@ const Products: React.FC = () => {
                     <ProductCard
                       key={product.id || product._id}
                       product={product}
-                      fromBuilder={fromBuilder}
-                      builderCategory={selectedCategory}
-                      builderState={builderState}
                     />
                   ))}
                 </div>

@@ -5,25 +5,74 @@ const path = require('path');
 // Get all products with optional search and pagination
 exports.getProducts = async (req, res) => {
   try {
-    const { keyword, category, brand, page = 1, limit = 500 } = req.query;
+    // Accept filtering/sorting/pagination params from client
+    const {
+      keyword,
+      category,
+      brand,
+      page = 1,
+      limit = 15,
+      sort = 'name',
+      stock
+    } = req.query;
+
     const query = {};
 
-    if(keyword){
+    // keyword search (name + description)
+    if (keyword) {
       query.$or = [
         { name: { $regex: keyword, $options: 'i' } },
         { description: { $regex: keyword, $options: 'i' } }
       ];
     }
-    if(category) query.category = category;
-    if(brand) query.brand = brand;
+
+    // category / brand - case-insensitive exact-ish match
+    if (category) {
+      query.category = { $regex: `^${category}$`, $options: 'i' };
+    }
+    if (brand) {
+      query.brand = { $regex: `^${brand}$`, $options: 'i' };
+    }
+
+    // stock filter
+    if (stock === 'in') {
+      query.stock = { $gt: 0 };
+    } else if (stock === 'out') {
+      query.stock = 0;
+    }
+
+    // sorting
+    let sortObj = {};
+    switch (sort) {
+      case 'price-low':
+        sortObj = { price: 1 };
+        break;
+      case 'price-high':
+        sortObj = { price: -1 };
+        break;
+      case 'rating':
+        sortObj = { rating: -1 }; // assuming rating field exists
+        break;
+      case 'newest':
+        sortObj = { createdAt: -1 };
+        break;
+      default:
+        // default to name ascending
+        sortObj = { name: 1 };
+    }
+
+    const numericLimit = Math.max(1, Math.min(200, parseInt(limit, 10) || 15)); // sane bounds
+    const numericPage = Math.max(1, parseInt(page, 10) || 1);
 
     const products = await Product.find(query)
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
-    
+      .sort(sortObj)
+      .skip((numericPage - 1) * numericLimit)
+      .limit(numericLimit)
+      .lean();
+
     const total = await Product.countDocuments(query);
 
-    res.json({ products, total, page: parseInt(page), limit: parseInt(limit) });
+    res.json({ products, total, page: numericPage, limit: numericLimit });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error retrieving products' });
