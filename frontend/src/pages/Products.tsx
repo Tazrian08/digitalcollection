@@ -24,6 +24,7 @@ const brands = [
   'Panasonic',
   'Olympus',
   'VILTROX',
+  'ULANZI',
 ];
 
 const PAGE_SIZE = 15;
