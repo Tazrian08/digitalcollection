@@ -24,7 +24,7 @@ const brands = [
   'NIKON',
   'RODE',
   'FUJIFILM',
-  'SAMNYANG',
+  'SAMYANG',
   'SIRUI',
   // // 'Panasonic',
   // 'Olympus',
