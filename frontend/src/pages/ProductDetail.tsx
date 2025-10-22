@@ -194,24 +194,44 @@ const ProductDetail: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex items-center">
                 <label className="text-sm font-medium text-gray-700 mr-3">Quantity:</label>
-                <select
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={product.stock <= 0}
-                >
-                  {[...Array(Math.min(10, product.stock))].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1}</option>
-                  ))}
-                </select>
+                <div className="ml-2 inline-flex items-center border rounded-md overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.max(1, Math.floor(q) - 1))}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 focus:outline-none"
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      // keep at least 1 and integer
+                      setQuantity(Number.isFinite(v) ? Math.max(1, Math.floor(v)) : 1);
+                    }}
+                    className="w-20 text-center px-3 py-2 focus:outline-none"
+                    min={1}
+                    aria-label="Quantity"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.floor(q) + 1)}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 focus:outline-none"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 ml-3">You may add more than current stock to the cart.</p>
               </div>
             </div>
 
             <div className="flex space-x-4 mb-6">
               <button
                 onClick={handleAddToCart}
-                disabled={product.stock <= 0}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Add to Cart</span>
@@ -321,7 +341,7 @@ const ProductDetail: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center space-x-2 text-gray-600">
                 <Truck className="h-4 w-4" />
-                <span>Free shipping over $500</span>
+                <span>Free shipping (conditional)</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600">
                 <Shield className="h-4 w-4" />
