@@ -341,7 +341,7 @@ const ProductDetail: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center space-x-2 text-gray-600">
                 <Truck className="h-4 w-4" />
-                <span>Free shipping over $500</span>
+                <span>Free shipping (conditional)</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600">
                 <Shield className="h-4 w-4" />

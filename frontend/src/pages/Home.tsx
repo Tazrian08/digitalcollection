@@ -302,7 +302,7 @@ const Home: React.FC = () => {
                 <Truck className="h-10 w-10 text-sky-600" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Free Shipping</h3>
-              <p className="text-gray-600 leading-relaxed">Free shipping on orders over $500 with express delivery options available</p>
+              <p className="text-gray-600 leading-relaxed">Free shipping on orders (Conditions are applicable)</p>
             </div>
             <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-emerald-100 to-green-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
