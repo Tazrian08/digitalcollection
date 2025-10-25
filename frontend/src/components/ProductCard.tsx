@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Star, CheckCircle, XCircle } from 'lucide-react';
@@ -123,10 +122,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-sky-700 transition-colors">
               {product.name}
             </h3>
-
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
-              {product.description}
-            </p>
 
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
