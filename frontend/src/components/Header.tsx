@@ -48,7 +48,7 @@ const Header: React.FC = () => {
   </div>
   {/* Show name on all screen sizes */}
   <span className="text-lg md:text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-    DigitalCollection
+    Digital Collection
   </span>
 </Link>
 
