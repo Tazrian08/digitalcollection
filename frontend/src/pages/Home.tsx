@@ -10,6 +10,7 @@ import certificationImg from '../../assets/certification.png';
 import djiImg from '../../assets/DJI.png';
 
 import { Product, Ad } from '../types';
+import ConveyorBelt from '../components/ConveyorBelt';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -69,6 +70,9 @@ const Home: React.FC = () => {
 
       {/* Quad Slider Section */}
       <QuadSliderSection />
+
+            {/* Quad Slider Section */}
+      <ConveyorBelt />
 
       {/* Certification Section */}
       <section className="py-8 bg-white flex justify-center items-center">
@@ -306,7 +310,7 @@ const Home: React.FC = () => {
             </div>
             <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-emerald-100 to-green-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                <Shield className="h-10 w-10 text-emerald-600" />89715
+                <Shield className="h-10 w-10 text-emerald-600" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Warranty Protection</h3>
               <p className="text-gray-600 leading-relaxed">Extended warranty coverage on all products with comprehensive protection plans</p>
