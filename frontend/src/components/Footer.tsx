@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
-import DCLogo from "../../assets/DC_logo.png"; // <-- Import logo
+import { Facebook, Instagram } from 'lucide-react';
+import { WhatsappLogo } from '@phosphor-icons/react';
+import DCLogo from "../../assets/DC_logo.png";
 
 const Footer: React.FC = () => {
   return (
@@ -35,18 +36,39 @@ const Footer: React.FC = () => {
               lenses, and accessories for photographers and videographers of all levels.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/DigitalCollectionBD/" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
+              {/* Facebook */}
+              <a
+                href="https://www.facebook.com/DigitalCollectionBD/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110"
+              >
                 <Facebook className="h-5 w-5" />
               </a>
-              {/* <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
-                <Twitter className="h-5 w-5" />
-              </a> */}
-              <a href="https://www.instagram.com/digitalcollection___?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
+
+              {/* WhatsApp — outline style to match Lucide icons */}
+              <a
+                href="https://wa.me/8801613799099"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110"
+                title="+880 1613-799099 on WhatsApp"
+              >
+                <WhatsappLogo size={20} weight="regular" />
+              </a>
+
+              {/* Instagram */}
+              <a
+                href="https://www.instagram.com/digitalcollection___?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110"
+              >
                 <Instagram className="h-5 w-5" />
               </a>
-              {/* <a href="#" className="p-3 bg-white/10 backdrop-blur-sm rounded-xl text-sky-300 hover:text-white hover:bg-sky-500 transition-all duration-300 hover:scale-110">
-                <Youtube className="h-5 w-5" />
-              </a> */}
             </div>
           </div>
 
@@ -54,31 +76,10 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-6 text-sky-200">Quick Links</h3>
             <ul className="space-y-3">
-              <li>
-                <Link to="/" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/products" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Products
-                </Link>
-              </li>
-              <li>
-                <Link to="/cart" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Cart
-                </Link>
-              </li>
-              <li>
-                <Link to="/builder" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Builder
-                </Link>
-              </li>
-              <li>
-                <Link to="/cart" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Cart
-                </Link>
-              </li>
+              <li><Link to="/" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Home</Link></li>
+              <li><Link to="/products" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Products</Link></li>
+              <li><Link to="/cart" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Cart</Link></li>
+              <li><Link to="/builder" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Builder</Link></li>
             </ul>
           </div>
 
@@ -86,46 +87,19 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold mb-6 text-sky-200">Support</h3>
             <ul className="space-y-3">
-              <li>
-                <Link to="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Shipping Info
-                </a>
-              </li>
-              <li>
-                <a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Returns
-                </a>
-              </li>
-              <li>
-                {/* <a href="#" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  Warranty
-                </a> */}
-              </li>
-              <li>
-                <a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">
-                  FAQ
-                </a>
-              </li>
+              <li><Link to="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Contact Us</Link></li>
+              <li><a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Shipping Info</a></li>
+              <li><a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">Returns</a></li>
+              <li><a href="/contact" className="text-sky-100 hover:text-white transition-colors hover:translate-x-1 transform duration-200 block">FAQ</a></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-sky-700/50 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sky-200 text-sm">
-            © 2025 DigitalCollection. All rights reserved.
-          </p>
+          <p className="text-sky-200 text-sm">© 2025 DigitalCollection. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-sky-200 hover:text-white text-sm transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-sky-200 hover:text-white text-sm transition-colors">
-              Terms of Service
-            </a>
+            <a href="#" className="text-sky-200 hover:text-white text-sm transition-colors">Privacy Policy</a>
+            <a href="#" className="text-sky-200 hover:text-white text-sm transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>
