@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Star, CheckCircle, XCircle } from 'lucide-react';
-import { Product } from '../types';
 import { useAuth } from '../context/AuthContext';
+import DCLogo from "../../assets/DC_logo.png";
+import { Product } from '../types';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -15,23 +16,18 @@ interface ProductCardProps {
 
 type Notice = { type: 'success' | 'error'; message: string } | null;
 
-const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  fromBuilder,
-  builderCategory,
-  builderState
-}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builderCategory, builderState }) => {
   const { token } = useAuth();
   const navigate = useNavigate();
   const [notice, setNotice] = useState<Notice>(null);
-
-  const showNotice = (n: Exclude<Notice, null>) => setNotice(n);
 
   useEffect(() => {
     if (!notice) return;
     const t = setTimeout(() => setNotice(null), 3000);
     return () => clearTimeout(t);
   }, [notice]);
+
+  const showNotice = (n: Exclude<Notice, null>) => setNotice(n);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -78,106 +74,92 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const imagePath = product.images && product.images[0]
     ? product.images[0].replace(/\\/g, '/')
     : '';
-  const imageUrl = imagePath ? `${apiBaseUrl}${imagePath}` : '/placeholder.jpg';
+  const imageUrl = imagePath ? `${apiBaseUrl}${imagePath}` : DCLogo;
 
   return (
     <div className="relative">
-      {/* Card */}
-      <div className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 group overflow-hidden border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
-        <Link to={`/product/${product._id}`} className="block">
-          <div className="relative overflow-hidden rounded-t-3xl">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+      {/* Fixed-height, equal cards: use flex-column and a set height so all cards match.
+          shadow + rounded to clearly separate cards from background. */}
+      <div className="bg-white rounded-xl shadow transition-all duration-200 overflow-hidden border border-sky-50 flex flex-col h-72">
+        <Link to={`/product/${product._id}`} className="block flex-1">
+          {/* Image area: centered, image fully visible via object-contain */}
+          <div className="relative rounded-t-xl bg-gray-50 flex items-center justify-center overflow-hidden h-36">
             <img
               src={imageUrl}
               alt={product.name}
-              className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
+              className="max-h-full w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              draggable={false}
+              decoding="async"
             />
 
-            {/* Stock Status */}
-            <div className="absolute bottom-4 left-4 z-20">
+            {/* Brand badge */}
+            <div className="absolute top-3 left-3 z-20">
+              <span className="text-xs font-semibold text-sky-700 bg-white/90 px-2 py-1 rounded-full shadow-sm">
+                {product.brand}
+              </span>
+            </div>
+
+            {/* Stock badge */}
+            <div className="absolute bottom-3 left-3 z-20">
               {product.stock > 0 ? (
-                <div className="flex items-center space-x-2 bg-emerald-100/90 backdrop-blur-sm text-emerald-800 text-xs font-medium px-3 py-2 rounded-full shadow-lg">
+                <div className="flex items-center space-x-2 bg-emerald-100/90 text-emerald-800 text-xs font-medium px-2 py-1 rounded-full shadow">
                   <CheckCircle className="h-3 w-3" />
-                  <span>In Stock</span>
+                  <span>In stock</span>
                 </div>
               ) : (
-                <div className="bg-red-100/90 backdrop-blur-sm text-red-800 text-xs font-medium px-3 py-2 rounded-full shadow-lg">
-                  Out of Stock
+                <div className="bg-red-100/90 text-red-800 text-xs font-medium px-2 py-1 rounded-full shadow">
+                  Out of stock
                 </div>
               )}
             </div>
           </div>
 
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-sky-600 bg-sky-50 px-3 py-1 rounded-full">{product.brand}</span>
-              <div className="flex items-center space-x-1">
-                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                <span className="text-sm text-gray-600 font-medium">
-                  {/* rating placeholder */}
-                </span>
-              </div>
-            </div>
-
-            <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-sky-700 transition-colors">
+          {/* Content area */}
+          <div className="p-3 flex flex-col h-[calc(100%-9rem)]"> 
+            {/* h calculation ensures content area stays consistent; button area pushed to bottom */}
+            <h3 className="text-sm font-semibold text-gray-900 mb-2 leading-tight group-hover:text-sky-700 transition-colors overflow-hidden line-clamp-2">
               {product.name}
             </h3>
 
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
+            <div className="flex items-center justify-between mt-auto">
+              <div>
+                <div className="text-lg font-bold text-gray-900">
                   {formatPrice(product.price)}
-                </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-end">
+                <div className="flex items-center text-yellow-400">
+                  <Star className="h-4 w-4" />
+                </div>
+                <div className="mt-2 w-28">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                    className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-2 rounded-lg hover:from-sky-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                  >
+                    <span className="inline-flex items-center justify-center gap-2">
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>{product.stock > 0 ? 'Add' : 'Notify'}</span>
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </Link>
 
-        <div className="px-6 pb-6">
-          <button
-            onClick={handleAddToCart}
-            disabled={product.stock <= 0}
-            className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 px-4 rounded-2xl hover:from-sky-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            <span>{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
-          </button>
-
-          {fromBuilder && (
+        {fromBuilder && (
+          <div className="px-3 pb-3">
             <button
               onClick={handleAddToBuilder}
-              className="mt-4 w-full bg-gradient-to-r from-emerald-500 to-blue-600 text-white py-2 rounded-xl font-semibold shadow hover:from-emerald-600 hover:to-blue-700 transition"
+              className="w-full bg-emerald-500 text-white py-2 rounded-lg font-medium shadow hover:bg-emerald-600 transition-colors text-sm"
             >
               Add to Builder
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
-      {/* Toast Notification */}
-      {notice && (
-        <div
-          className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold flex items-center gap-3
-            ${notice.type === 'success'
-              ? 'bg-gradient-to-r from-emerald-500 to-green-600'
-              : 'bg-gradient-to-r from-red-500 to-pink-600'}`}
-          role="status"
-          aria-live="polite"
-        >
-          {notice.type === 'success' ? (
-            <CheckCircle className="h-5 w-5 text-white" />
-          ) : (
-            <XCircle className="h-5 w-5 text-white" />
-          )}
-          <span>{notice.message}</span>
-          <button
-            onClick={() => setNotice(null)}
-            className="ml-2 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-xs"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
     </div>
   );
 };
