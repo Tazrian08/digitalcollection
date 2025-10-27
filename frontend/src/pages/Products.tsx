@@ -100,8 +100,6 @@ const Products: React.FC = () => {
           return (a.price ?? 0) - (b.price ?? 0);
         case 'price-high':
           return (b.price ?? 0) - (a.price ?? 0);
-        case 'rating':
-          return (b.rating ?? 0) - (a.rating ?? 0);
         case 'newest':
           const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const bDate = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -252,7 +250,6 @@ const Products: React.FC = () => {
               <option value="name">Sort by Name</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
               <option value="newest">Newest First</option>
             </select>
 
