@@ -41,6 +41,12 @@ const ProductDetail: React.FC = () => {
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [togglingStock, setTogglingStock] = useState(false);
 
+  // Admin edit state (name & price)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPrice, setEditPrice] = useState<number | ''>('');
+  const [saving, setSaving] = useState(false);
+
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user, token } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +63,9 @@ const ProductDetail: React.FC = () => {
         const data = await res.json();
         setProduct(data);
         console.log(data);
+        // initialize edit fields when product loads
+        setEditName(data?.name || '');
+        setEditPrice(typeof data?.price === 'number' ? data.price : '');
       } catch (err: any) {
         setError(err.message || 'Error fetching product');
       } finally {
@@ -139,6 +148,51 @@ const ProductDetail: React.FC = () => {
     } catch (err: any) {
       setNotice({ type: 'error', message: err.message || 'Error deleting product' });
     }
+  };
+
+  // Admin: submit name & price update
+  const handleAdminSave = async () => {
+    if (!user?.isAdmin || !token || !product) return;
+    // basic validation
+    if (!editName || editName.trim().length < 2) {
+      setNotice({ type: 'error', message: 'Name is too short' });
+      return;
+    }
+    const p = Number(editPrice);
+    if (!Number.isFinite(p) || p < 0) {
+      setNotice({ type: 'error', message: 'Invalid price' });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const res = await fetch(`${apiBaseUrl}/api/products/${product._id}/admin-update`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: editName.trim(), price: p })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update');
+      setProduct(data);
+      setNotice({ type: 'success', message: 'Product updated' });
+      setIsEditing(false);
+    } catch (err: any) {
+      setNotice({ type: 'error', message: err.message || 'Error updating product' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAdminCancel = () => {
+    if (product) {
+      setEditName(product.name || '');
+      setEditPrice(product.price ?? '');
+    }
+    setIsEditing(false);
   };
 
   const formatPrice = (price: number) =>
@@ -253,7 +307,50 @@ const ProductDetail: React.FC = () => {
               </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+            {/* Name (editable by admins) */}
+            {!isEditing && (
+              <div className="flex items-start gap-4 mb-4">
+                <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                {user?.isAdmin && token && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="ml-3 text-sm bg-sky-100 text-sky-800 px-3 py-1 rounded hover:bg-sky-200"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            )}
+            {isEditing && (
+              <div className="space-y-3 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="mt-1 block w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Price (BDT)</label>
+                  <input
+                    type="number"
+                    value={editPrice as any}
+                    onChange={(e) => setEditPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                    className="mt-1 block w-40 border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button onClick={handleAdminSave} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded">
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button onClick={handleAdminCancel} disabled={saving} className="px-3 py-2 rounded border">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
             {user?.isAdmin && token && (
               <button onClick={handleDeleteProduct} className="mb-3 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition">
                 Delete Product
