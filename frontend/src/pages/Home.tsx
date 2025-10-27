@@ -212,7 +212,7 @@ const Home: React.FC = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-6">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4 leading-snug pb-1">
               Shop by Category
             </h2>
             <p className="text-xl text-gray-600">
@@ -293,7 +293,7 @@ const Home: React.FC = () => {
       <section className="py-20 bg-gradient-to-r from-white to-sky-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4 leading-snug pb-1">
               Why Choose Digital Collection?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
