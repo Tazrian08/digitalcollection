@@ -31,10 +31,21 @@ const Footer: React.FC = () => {
                 DigitalCollection
               </span>
             </Link>
-            <p className="text-sky-100 mb-6 max-w-md leading-relaxed">
+            <p className="text-sky-100 mb-4 max-w-md leading-relaxed">
               Your trusted partner for professional camera equipment. We provide high-quality cameras, 
               lenses, and accessories for photographers and videographers of all levels.
             </p>
+
+            {/* Contact info */}
+            <div className="text-sky-100 mb-6 max-w-md">
+              <a href="tel:+8801613799099" className="block text-sm hover:underline">
+                Contact Number: +880 1613-799099
+              </a>
+              <div className="text-sm mt-1">
+                Address: Shop 42 New Super Market, Baitul Mukarram, Dhaka, Bangladesh
+              </div>
+            </div>
+
             <div className="flex space-x-4">
               {/* Facebook */}
               <a
