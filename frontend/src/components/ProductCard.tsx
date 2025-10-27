@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Star, CheckCircle, XCircle } from 'lucide-react';
+import { ShoppingCart, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import DCLogo from "../../assets/DC_logo.png";
 import { Product } from '../types';
@@ -121,18 +121,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
               {product.name}
             </h3>
 
-            <div className="flex items-center justify-between mt-auto">
-              <div>
+            <div className="flex items-center justify-between mt-auto space-x-4">
+              <div className="flex items-center">
                 <div className="text-lg font-bold text-gray-900">
                   {formatPrice(product.price)}
                 </div>
               </div>
 
-              <div className="flex flex-col items-end">
-                <div className="flex items-center text-yellow-400">
-                  <Star className="h-4 w-4" />
-                </div>
-                <div className="mt-2 w-28">
+              <div className="flex items-center">
+                <div className="w-28">
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock <= 0}
