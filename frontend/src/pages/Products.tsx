@@ -10,9 +10,15 @@ const categories = [
   'Camera',
   'Lens',
   'Accessory',
-  // 'Lighting',
-  // 'Tripods',
-  // 'Storage'
+  'Battery',
+  'Drone',
+  'Action Camera',
+  'Gimbal',
+  'Microphone',
+  'Flash Light',
+  'Softbox',
+  'Charger',
+  'Memory Card'
 ];
 
 const brands = [
