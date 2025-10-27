@@ -10,9 +10,9 @@ const categories = [
   'Camera',
   'Lens',
   'Accessory',
-  'Lighting',
-  'Tripods',
-  'Storage'
+  // 'Lighting',
+  // 'Tripods',
+  // 'Storage'
 ];
 
 const brands = [
