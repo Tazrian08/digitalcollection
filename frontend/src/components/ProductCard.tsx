@@ -29,8 +29,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
 
   const showNotice = (n: Exclude<Notice, null>) => setNotice(n);
 
+  // ensure click inside buttons doesn't trigger Link navigation
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!token) {
       showNotice({ type: 'error', message: 'Please sign in to add items to your cart.' });
       return;
@@ -51,14 +53,29 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
     }
   };
 
-  const handleAddToBuilder = () => {
-    if (!builderCategory || builderCategory === 'All Categories') {
+  const handleAddToBuilder = (e?: React.MouseEvent) => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    // prefer explicit builderCategory, fallback to product.category
+    const raw = (builderCategory && String(builderCategory)) || (product.category && String(product.category)) || '';
+    if (!raw || raw === 'All Categories') {
       showNotice({ type: 'error', message: 'Choose a specific category to add this item.' });
       return;
     }
+
+    // normalize to kebab-case keys used by Builder: "Action Camera" -> "action-camera"
+    const normalizeKey = (s: string) =>
+      s
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-') // spaces & non-alphanum -> hyphen
+        .replace(/(^-|-$)/g, '');
+
+    const key = normalizeKey(raw);
+    const baseState = typeof builderState === 'object' && builderState ? builderState : {};
+
     const updatedBuilder = {
-      ...builderState,
-      [builderCategory.toLowerCase()]: {
+      ...baseState,
+      [key]: {
         id: product._id,
         name: product.name,
         price: product.price,
@@ -66,7 +83,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
       }
     };
     const builderStateStr = encodeURIComponent(JSON.stringify(updatedBuilder));
-    navigate(`/builder?builderState=${builderStateStr}`);
+
+    // Show the same style toast as in ProductDetail, then navigate after a short delay so user sees confirmation.
+    showNotice({ type: 'success', message: 'Added to builder — opening builder...' });
+    setTimeout(() => {
+      navigate(`/builder?builderState=${builderStateStr}`);
+    }, 650);
   };
 
   const formatPrice = (price: number) => price.toLocaleString();
@@ -81,6 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
       {/* Fixed-height, equal cards: use flex-column and a set height so all cards match.
           shadow + rounded to clearly separate cards from background. */}
       <div className="bg-white rounded-xl shadow transition-all duration-200 overflow-hidden border border-sky-50 flex flex-col h-72">
+        {/* Link wraps image + title + price only. Buttons are outside the Link so clicks work reliably. */}
         <Link to={`/product/${product._id}`} className="block flex-1">
           {/* Image area: centered, image fully visible via object-contain */}
           <div className="relative rounded-t-xl bg-gray-50 flex items-center justify-center overflow-hidden h-36">
@@ -115,8 +138,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
           </div>
 
           {/* Content area */}
-          <div className="p-3 flex flex-col h-[calc(100%-9rem)]"> 
-            {/* h calculation ensures content area stays consistent; button area pushed to bottom */}
+          <div className="p-3 flex flex-col h-[calc(100%-9rem)]">
+            {/* h calculation ensures content area stays consistent; button area is below Link */}
             <h3 className="text-sm font-semibold text-gray-900 mb-2 leading-tight group-hover:text-sky-700 transition-colors overflow-hidden line-clamp-2">
               {product.name}
             </h3>
@@ -128,35 +151,60 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, fromBuilder, builder
                 </div>
               </div>
 
+              {/* leave space for button area below the Link */}
               <div className="flex items-center">
-                <div className="w-28">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={product.stock <= 0}
-                    className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-2 rounded-lg hover:from-sky-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                  >
-                    <span className="inline-flex items-center justify-center gap-2">
-                      <ShoppingCart className="h-4 w-4" />
-                      <span>{product.stock > 0 ? 'Add' : 'Notify'}</span>
-                    </span>
-                  </button>
-                </div>
+                <div className="w-28 opacity-0 pointer-events-none" />
               </div>
             </div>
           </div>
         </Link>
 
-        {fromBuilder && (
-          <div className="px-3 pb-3">
-            <button
-              onClick={handleAddToBuilder}
-              className="w-full bg-emerald-500 text-white py-2 rounded-lg font-medium shadow hover:bg-emerald-600 transition-colors text-sm"
-            >
-              Add to Builder
-            </button>
+        {/* Button area: outside the Link so button clicks don't trigger navigation */}
+        <div className="px-3 pb-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1">
+              <button
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0}
+                className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-2 rounded-lg hover:from-sky-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+              >
+                <span className="inline-flex items-center justify-center gap-2">
+                  <ShoppingCart className="h-4 w-4" />
+                  <span>{product.stock > 0 ? 'Add' : 'Notify'}</span>
+                </span>
+              </button>
+            </div>
+
+            {fromBuilder && (
+              <div className="w-28">
+                <button
+                  type="button"
+                  onClick={handleAddToBuilder}
+                  className="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-2 rounded-lg font-medium shadow hover:from-sky-600 hover:to-blue-700 transition-colors text-sm"
+                >
+                  Add to Builder
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Use same style toast/modal as ProductDetail */}
+      {notice && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-5 py-4 rounded-2xl shadow-2xl text-white font-semibold flex items-center gap-3
+              ${notice.type === 'success' ? 'bg-gradient-to-r from-emerald-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-pink-600'}`}
+          role="status"
+          aria-live="polite"
+        >
+          {notice.type === 'success' ? <CheckCircle className="h-5 w-5 text-white" /> : <XCircle className="h-5 w-5 text-white" />}
+          <span>{notice.message}</span>
+          <button onClick={() => setNotice(null)} className="ml-2 rounded-lg bg-white/10 hover:bg-white/20 px-2 py-1 text-xs">
+            Dismiss
+          </button>
+        </div>
+      )}
     </div>
   );
 };
