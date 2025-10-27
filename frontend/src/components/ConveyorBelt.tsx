@@ -1,17 +1,38 @@
-import React, { useEffect, useRef, useState } from "react";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+/**
+ * Apple‑style Conveyor Belt (continuous marquee)
+ *
+ * - Smooth, continuous leftward motion (no visible jumps)
+ * - Always filled edge‑to‑edge
+ * - Seamless wrap using modulo math
+ * - Responsive, resilient to resize and image load timing
+ *
+ * Usage:
+ *   <ConveyorBelt />
+ */
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 type Img = { _id: string; path: string; caption?: string };
 
+const SPEED_PX_PER_SEC = 120; // tune this to taste
+
 const ConveyorBelt: React.FC = () => {
   const [images, setImages] = useState<Img[]>([]);
+  const [ready, setReady] = useState(false);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
+
+  // animation refs
   const rafRef = useRef<number | null>(null);
+  const startTsRef = useRef<number>(0);
+  const pausedRef = useRef<boolean>(false);
   const singleWidthRef = useRef<number>(0);
   const offsetRef = useRef<number>(0);
-  const pausedRef = useRef<boolean>(false);
 
+  // fetch images once
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -19,18 +40,22 @@ const ConveyorBelt: React.FC = () => {
         const res = await fetch(`${apiBaseUrl}/api/conveyor`);
         if (!res.ok) return;
         const data = await res.json();
-        if (mounted) setImages(data.images || []);
-      } catch (err) {
-        console.warn("Failed to load conveyor images", err);
+        if (mounted) {
+          const arr: Img[] = Array.isArray(data?.images) ? data.images : [];
+          setImages(arr);
+        }
+      } catch (e) {
+        console.warn("Failed to load conveyor images", e);
       }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
-  // duplicated images for seamless loop
-  const loopImages = images.length ? [...images, ...images] : [];
+  // Repeat the image list 3 times for a continuous, filled belt.
+  const loopImages = useMemo(() => {
+    if (!images.length) return [];
+    return [...images, ...images, ...images];
+  }, [images]);
 
   const makeUrl = (p?: string) => {
     if (!p) return "";
@@ -38,78 +63,103 @@ const ConveyorBelt: React.FC = () => {
     return encodeURI(`${apiBaseUrl}${fixed}`);
   };
 
-  // measure widths AFTER images load, set initial offset so visible window starts aligned to right edge
+  // Wait for all <img> to load (or best‑effort timeout) before measuring
+  const waitForImgs = async (root: HTMLElement) => {
+    const imgs = Array.from(root.querySelectorAll("img")) as HTMLImageElement[];
+    await Promise.allSettled(
+      imgs.map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          const done = () => resolve();
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+          setTimeout(done, 2500);
+        });
+      })
+    );
+  };
+
+  const measure = async () => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    await waitForImgs(track);
+
+    // width of ONE original sequence (not all 3 copies)
+    // Since we rendered 3x, we can infer the single width by dividing by 3.
+    const total = track.scrollWidth;
+    const singleWidth = Math.max(1, Math.round(total / 3));
+    singleWidthRef.current = singleWidth;
+
+    // Start with the middle copy aligned to the viewport so it's already filled both sides.
+    // That means an initial negative offset of exactly one singleWidth.
+    // We'll store the absolute "positive" offset value and apply translateX(-offset).
+    offsetRef.current = singleWidth;
+
+    // apply transform & reveal
+    track.style.transform = `translateX(${-offsetRef.current}px) translateZ(0)`;
+    setReady(true);
+  };
+
+  // measure on mount/changes and on resize/font reflow
   useEffect(() => {
-    if (!loopImages.length) return;
+    if (!loopImages.length) {
+      setReady(false);
+      return;
+    }
     let cancelled = false;
 
-    const measure = async () => {
-      const track = trackRef.current;
-      const container = containerRef.current;
-      if (!track || !container) return;
-
-      const imgs = Array.from(track.querySelectorAll("img"));
-      await Promise.allSettled(
-        imgs.map((imgEl) => {
-          const img = imgEl as HTMLImageElement;
-          if (img.complete) return Promise.resolve();
-          return new Promise<void>((resolve) => {
-            img.addEventListener("load", () => resolve(), { once: true });
-            img.addEventListener("error", () => resolve(), { once: true });
-            // safety timeout
-            setTimeout(() => resolve(), 2000);
-          });
-        })
-      );
+    const doMeasure = async () => {
       if (cancelled) return;
-
-      const trackScrollWidth = track.scrollWidth || 0;
-      const singleWidth = trackScrollWidth / 2 || 0;
-      singleWidthRef.current = singleWidth;
-
-      const viewportWidth =
-        window.innerWidth ||
-        document.documentElement.clientWidth ||
-        container.clientWidth;
-      // compute startOffset so that the right edge of the first sequence lines up with the right edge of the viewport
-      let startOffset = Math.max(0, Math.round(singleWidth - viewportWidth));
-      if (singleWidth > 0) startOffset = startOffset % singleWidth;
-
-      offsetRef.current = startOffset;
-      track.style.transform = `translateX(${-offsetRef.current}px)`;
+      await measure();
     };
 
-    const t = window.setTimeout(measure, 40);
-    window.addEventListener("resize", measure);
+    const fontReady = (document as any).fonts?.ready ?? Promise.resolve();
+    fontReady.then(() => requestAnimationFrame(doMeasure));
+
+    const containerEl = containerRef.current;
+    let ro: ResizeObserver | null = null;
+    if (containerEl && "ResizeObserver" in window) {
+      ro = new ResizeObserver(() => requestAnimationFrame(doMeasure));
+      ro.observe(containerEl);
+    } else {
+      const handler = () => doMeasure();
+      window.addEventListener("resize", handler);
+      (doMeasure as any)._fallback = handler;
+    }
+
     return () => {
       cancelled = true;
-      clearTimeout(t);
-      window.removeEventListener("resize", measure);
+      if (ro) ro.disconnect();
+      if ((doMeasure as any)._fallback) {
+        window.removeEventListener("resize", (doMeasure as any)._fallback);
+      }
     };
   }, [loopImages.length]);
 
-  // continuous smooth animation with wrapping (no jump)
+  // rAF loop: continuous modulo wrap
   useEffect(() => {
     if (!loopImages.length) return;
     const track = trackRef.current;
     if (!track) return;
 
-    const speedPxPerSec = 120; // tune speed
-    let last = performance.now();
-
     const step = (now: number) => {
-      const dt = Math.max(0, now - last) / 1000;
-      last = now;
+      if (!startTsRef.current) startTsRef.current = now;
+      const dt = Math.min((now - startTsRef.current) / 1000, 1 / 30); // cap initial frame
+      startTsRef.current = now;
 
       if (!pausedRef.current) {
-        const singleWidth = singleWidthRef.current || 0;
+        const singleWidth = singleWidthRef.current;
         if (singleWidth > 0) {
-          offsetRef.current += speedPxPerSec * dt;
-          if (offsetRef.current >= singleWidth) {
-            // wrap without visual jump
-            offsetRef.current = offsetRef.current % singleWidth;
-          }
-          track.style.transform = `translateX(${-offsetRef.current}px)`;
+          // advance
+          offsetRef.current += SPEED_PX_PER_SEC * dt;
+
+          // wrap seamlessly across exactly one single sequence width
+          offsetRef.current = offsetRef.current % singleWidth;
+
+          // base position keeps the middle copy onscreen; add offset to slide left
+          const x = singleWidth + offsetRef.current;
+          track.style.transform = `translateX(${-x}px) translateZ(0)`;
         }
       }
 
@@ -119,49 +169,48 @@ const ConveyorBelt: React.FC = () => {
     rafRef.current = requestAnimationFrame(step);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      startTsRef.current = 0;
     };
   }, [loopImages.length]);
 
   if (!images.length) return null;
 
   return (
-    <div className="w-full overflow-hidden py-6 bg-white">
-      <div
-        ref={containerRef}
-        className="relative w-full px-4 sm:px-6 lg:px-8"
-        aria-hidden={false}
-      >
-        <div
-          className="conveyor relative w-full overflow-hidden"
-          style={{ marginLeft: 0, marginRight: 0 }}
-        >
+    <div className="w-screen overflow-hidden bg-white">
+      {/* Full‑bleed wrapper so the belt reaches the true edges like Apple */}
+      <div ref={containerRef} className="relative w-full">
+        <div className="relative w-full overflow-hidden">
           <div
             ref={trackRef}
-            className="conveyor-track flex items-center"
+            className="flex items-center select-none"
             style={{
               display: "flex",
               alignItems: "center",
               gap: 32,
               whiteSpace: "nowrap",
               willChange: "transform",
+              opacity: ready ? 1 : 0,
+              visibility: ready ? "visible" : "hidden",
+              transform: "translateX(0px) translateZ(0)",
+              transition: "opacity 150ms ease",
             }}
             role="list"
-            aria-label="Conveyor belt"
+            aria-label="Product brand belt"
             onMouseEnter={() => (pausedRef.current = true)}
             onMouseLeave={() => (pausedRef.current = false)}
             onTouchStart={() => (pausedRef.current = true)}
             onTouchEnd={() => (pausedRef.current = false)}
           >
             {loopImages.map((img, idx) => (
-              <div
-                key={`${img._id}-${idx}`}
-                className="flex-shrink-0 px-2"
-                role="listitem"
-              >
+              <div key={`${img._id}-${idx}`} className="flex-shrink-0" role="listitem">
                 <img
                   src={makeUrl(img.path)}
                   alt={img.caption || `conveyor-${idx}`}
-                  className="h-28 sm:h-32 md:h-40 lg:h-48 xl:h-56 w-auto object-contain rounded-lg shadow-sm bg-white p-2"
+                  className="h-28 sm:h-32 md:h-40 lg:h-48 xl:h-56 w-auto object-contain rounded-xl shadow-sm bg-white p-2"
+                  draggable={false}
+                  decoding="async"
+                  loading="eager"
+                  fetchPriority={idx < images.length ? "high" : "auto" as any}
                 />
               </div>
             ))}
@@ -169,10 +218,11 @@ const ConveyorBelt: React.FC = () => {
         </div>
       </div>
 
+      {/* Optional edge‑to‑edge helper if your page has padded centered content
+          Apply 'conveyor-fullbleed' to the parent of this component if needed */}
       <style>{`
-        /* pause on hover handled via events; keep simple fallback */
         @media (min-width: 1024px) {
-          .conveyor {
+          .conveyor-fullbleed {
             margin-left: calc((100vw - 100%) / -2);
             margin-right: calc((100vw - 100%) / -2);
             padding-left: calc((100vw - 100%) / 2);
