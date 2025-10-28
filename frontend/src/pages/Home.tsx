@@ -61,7 +61,7 @@ const Home: React.FC = () => {
   const featuredProducts = products.filter((_, i) => [1, 2, 3, 5].includes(i));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-clip">
       {/* Ad Slider */}
       <AdSlider ads={ads} />
 
