@@ -174,42 +174,48 @@ const Products: React.FC = () => {
     const uniqueSorted = [...new Set(pages)].sort((a, b) => a - b);
 
     return (
-      <div className="mt-10 flex items-center justify-center gap-2">
-        <button
-          onClick={() => goToPage(Math.max(1, safePage - 1))}
-          disabled={safePage === 1}
-          className="px-4 py-2 rounded-xl bg-white/80 border border-sky-200 text-gray-700 disabled:opacity-50 hover:bg-white shadow-sm"
-        >
-          Prev
-        </button>
+      <div className="mt-10 w-full flex justify-center">
+        {/* inner wrapper allows wrapping on small screens and small horizontal padding */}
+        <div className="flex flex-wrap items-center justify-center gap-2 px-2">
+          <button
+            onClick={() => goToPage(Math.max(1, safePage - 1))}
+            disabled={safePage === 1}
+            aria-label="Previous page"
+            className="px-3 sm:px-4 py-2 rounded-xl bg-white/80 border border-sky-200 text-gray-700 disabled:opacity-50 hover:bg-white shadow-sm min-w-[44px]"
+          >
+            Prev
+          </button>
 
-        {uniqueSorted.map((p, idx) => {
-          const prev = uniqueSorted[idx - 1];
-          const showDots = prev && p - prev > 1;
-          return (
-            <React.Fragment key={p}>
-              {showDots && <span className="px-2 text-gray-400">…</span>}
-              <button
-                onClick={() => goToPage(p)}
-                className={`px-4 py-2 rounded-xl border shadow-sm transition ${
-                  p === safePage
-                    ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white border-transparent'
-                    : 'bg-white/80 border-sky-200 text-gray-700 hover:bg-white'
-                }`}
-              >
-                {p}
-              </button>
-            </React.Fragment>
-          );
-        })}
+          {uniqueSorted.map((p, idx) => {
+            const prev = uniqueSorted[idx - 1];
+            const showDots = prev && p - prev > 1;
+            return (
+              <React.Fragment key={p}>
+                {showDots && <span className="px-2 text-gray-400">…</span>}
+                <button
+                  onClick={() => goToPage(p)}
+                  aria-current={p === safePage ? 'page' : undefined}
+                  className={`px-3 sm:px-4 py-2 rounded-xl border shadow-sm transition min-w-[36px] sm:min-w-[44px] ${
+                    p === safePage
+                      ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white border-transparent'
+                      : 'bg-white/80 border-sky-200 text-gray-700 hover:bg-white'
+                  }`}
+                >
+                  {p}
+                </button>
+              </React.Fragment>
+            );
+          })}
 
-        <button
-          onClick={() => goToPage(Math.min(totalPages, safePage + 1))}
-          disabled={safePage === totalPages}
-          className="px-4 py-2 rounded-xl bg-white/80 border border-sky-200 text-gray-700 disabled:opacity-50 hover:bg-white shadow-sm"
-        >
-          Next
-        </button>
+          <button
+            onClick={() => goToPage(Math.min(totalPages, safePage + 1))}
+            disabled={safePage === totalPages}
+            aria-label="Next page"
+            className="px-3 sm:px-4 py-2 rounded-xl bg-white/80 border border-sky-200 text-gray-700 disabled:opacity-50 hover:bg-white shadow-sm min-w-[44px]"
+          >
+            Next
+          </button>
+        </div>
       </div>
     );
   };
