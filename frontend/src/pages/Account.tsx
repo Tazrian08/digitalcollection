@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import ContactInbox from '../components/ContactInbox';
+import ManageConveyor from './ManageConveyor';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 const Account: React.FC = () => {
@@ -211,6 +212,7 @@ const Account: React.FC = () => {
         { id: 'addProduct', name: 'Add Product', icon: Package },
         { id: 'addAd', name: 'Add to Slider', icon: Package },
         { id: 'manageAds', name: 'Manage Ads', icon: Package },
+        { id: 'manageConveyor', name: 'Manage Conveyor', icon: Layers },
         { id: 'manageQuadAds', name: 'Manage Quad Sliders', icon: Layers }, // <-- NEW TAB
       ]
     : [
@@ -321,6 +323,9 @@ const Account: React.FC = () => {
         // Redirect to /admin/add
         window.location.href = '/admin/add';
         return null;
+
+      case 'manageConveyor':
+        return <ManageConveyor />;
 
       case 'manageQuadAds':
         window.location.href = '/manage-quad-ads';

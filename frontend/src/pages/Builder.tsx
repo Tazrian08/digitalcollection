@@ -1,46 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, Aperture, Flashlight, HardDrive, Layers, PackageCheck, ShoppingCart, CheckCircle, XCircle, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+// replaced builderSections to include all product categories (except "All Categories")
 const builderSections = [
-  {
-    key: 'camera',
-    label: 'Camera',
-    icon: <Camera className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Camera',
-  },
-  {
-    key: 'lens',
-    label: 'Lens',
-    icon: <Aperture className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Lens',
-  },
-  {
-    key: 'accessory',
-    label: 'Accessory',
-    icon: <PackageCheck className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Accessory',
-  },
-  {
-    key: 'lighting',
-    label: 'Lighting',
-    icon: <Flashlight className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Lighting',
-  },
-  {
-    key: 'tripod',
-    label: 'Tripod',
-    icon: <Layers className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Tripods',
-  },
-  {
-    key: 'storage',
-    label: 'Storage',
-    icon: <HardDrive className="h-6 w-6 text-sky-600" />,
-    route: '/products?category=Storage',
-  },
+  { key: 'camera', label: 'Camera', icon: <Camera className="h-6 w-6 text-sky-600" />, route: '/products?category=Camera' },
+  { key: 'lens', label: 'Lens', icon: <Aperture className="h-6 w-6 text-sky-600" />, route: '/products?category=Lens' },
+  { key: 'accessory', label: 'Accessory', icon: <PackageCheck className="h-6 w-6 text-sky-600" />, route: '/products?category=Accessory' },
+  { key: 'battery', label: 'Battery', icon: <HardDrive className="h-6 w-6 text-sky-600" />, route: '/products?category=Battery' },
+  { key: 'drone', label: 'Drone', icon: <Camera className="h-6 w-6 text-sky-600" />, route: '/products?category=Drone' },
+  { key: 'action-camera', label: 'Action Camera', icon: <Camera className="h-6 w-6 text-sky-600" />, route: '/products?category=Action Camera' },
+  { key: 'gimbal', label: 'Gimbal', icon: <Layers className="h-6 w-6 text-sky-600" />, route: '/products?category=Gimbal' },
+  { key: 'microphone', label: 'Microphone', icon: <Info className="h-6 w-6 text-sky-600" />, route: '/products?category=Microphone' },
+  { key: 'flash-light', label: 'Flash Light', icon: <Flashlight className="h-6 w-6 text-sky-600" />, route: '/products?category=Flash Light' },
+  { key: 'softbox', label: 'Softbox', icon: <Flashlight className="h-6 w-6 text-sky-600" />, route: '/products?category=Softbox' },
+  { key: 'charger', label: 'Charger', icon: <ShoppingCart className="h-6 w-6 text-sky-600" />, route: '/products?category=Charger' },
+  { key: 'memory-card', label: 'Memory Card', icon: <HardDrive className="h-6 w-6 text-sky-600" />, route: '/products?category=Memory Card' },
 ];
 
 interface BuilderProduct {
@@ -63,9 +39,15 @@ const getInitialBuilderState = () => {
     camera: null,
     lens: null,
     accessory: null,
-    lighting: null,
-    tripod: null,
-    storage: null,
+    battery: null,
+    drone: null,
+    'action-camera': null,
+    gimbal: null,
+    microphone: null,
+    'flash-light': null,
+    softbox: null,
+    charger: null,
+    'memory-card': null,
   };
 };
 

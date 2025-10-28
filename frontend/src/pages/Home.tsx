@@ -10,6 +10,7 @@ import certificationImg from '../../assets/certification.png';
 import djiImg from '../../assets/DJI.png';
 
 import { Product, Ad } from '../types';
+import ConveyorBelt from '../components/ConveyorBelt';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -60,7 +61,7 @@ const Home: React.FC = () => {
   const featuredProducts = products.filter((_, i) => [1, 2, 3, 5].includes(i));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-clip">
       {/* Ad Slider */}
       <AdSlider ads={ads} />
 
@@ -69,6 +70,9 @@ const Home: React.FC = () => {
 
       {/* Quad Slider Section */}
       <QuadSliderSection />
+
+            {/* Quad Slider Section */}
+      <ConveyorBelt />
 
       {/* Certification Section */}
       <section className="py-8 bg-white flex justify-center items-center">
@@ -208,7 +212,7 @@ const Home: React.FC = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-6">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4 leading-snug pb-1">
               Shop by Category
             </h2>
             <p className="text-xl text-gray-600">
@@ -289,8 +293,8 @@ const Home: React.FC = () => {
       <section className="py-20 bg-gradient-to-r from-white to-sky-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4">
-              Why Choose DigitalCollection?
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent mb-4 leading-snug pb-1">
+              Why Choose Digital Collection?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Experience the difference with our premium services and commitment to excellence
@@ -302,7 +306,7 @@ const Home: React.FC = () => {
                 <Truck className="h-10 w-10 text-sky-600" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">Free Shipping</h3>
-              <p className="text-gray-600 leading-relaxed">Free shipping on orders over $500 with express delivery options available</p>
+              <p className="text-gray-600 leading-relaxed">Free shipping on orders (Conditions are applicable)</p>
             </div>
             <div className="group text-center p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-sky-100 hover:border-sky-300 transform hover:-translate-y-2">
               <div className="bg-gradient-to-br from-emerald-100 to-green-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">

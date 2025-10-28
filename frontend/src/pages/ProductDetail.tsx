@@ -41,6 +41,12 @@ const ProductDetail: React.FC = () => {
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [togglingStock, setTogglingStock] = useState(false);
 
+  // Admin edit state (name & price)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPrice, setEditPrice] = useState<number | ''>('');
+  const [saving, setSaving] = useState(false);
+
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user, token } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +63,9 @@ const ProductDetail: React.FC = () => {
         const data = await res.json();
         setProduct(data);
         console.log(data);
+        // initialize edit fields when product loads
+        setEditName(data?.name || '');
+        setEditPrice(typeof data?.price === 'number' ? data.price : '');
       } catch (err: any) {
         setError(err.message || 'Error fetching product');
       } finally {
@@ -141,6 +150,51 @@ const ProductDetail: React.FC = () => {
     }
   };
 
+  // Admin: submit name & price update
+  const handleAdminSave = async () => {
+    if (!user?.isAdmin || !token || !product) return;
+    // basic validation
+    if (!editName || editName.trim().length < 2) {
+      setNotice({ type: 'error', message: 'Name is too short' });
+      return;
+    }
+    const p = Number(editPrice);
+    if (!Number.isFinite(p) || p < 0) {
+      setNotice({ type: 'error', message: 'Invalid price' });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const res = await fetch(`${apiBaseUrl}/api/products/${product._id}/admin-update`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: editName.trim(), price: p })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update');
+      setProduct(data);
+      setNotice({ type: 'success', message: 'Product updated' });
+      setIsEditing(false);
+    } catch (err: any) {
+      setNotice({ type: 'error', message: err.message || 'Error updating product' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAdminCancel = () => {
+    if (product) {
+      setEditName(product.name || '');
+      setEditPrice(product.price ?? '');
+    }
+    setIsEditing(false);
+  };
+
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(price);
 
@@ -194,24 +248,44 @@ const ProductDetail: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex items-center">
                 <label className="text-sm font-medium text-gray-700 mr-3">Quantity:</label>
-                <select
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  disabled={product.stock <= 0}
-                >
-                  {[...Array(Math.min(10, product.stock))].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1}</option>
-                  ))}
-                </select>
+                <div className="ml-2 inline-flex items-center border rounded-md overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.max(1, Math.floor(q) - 1))}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 focus:outline-none"
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      // keep at least 1 and integer
+                      setQuantity(Number.isFinite(v) ? Math.max(1, Math.floor(v)) : 1);
+                    }}
+                    className="w-20 text-center px-3 py-2 focus:outline-none"
+                    min={1}
+                    aria-label="Quantity"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(q => Math.floor(q) + 1)}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 focus:outline-none"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 ml-3">You may add more than current stock to the cart.</p>
               </div>
             </div>
 
             <div className="flex space-x-4 mb-6">
               <button
                 onClick={handleAddToCart}
-                disabled={product.stock <= 0}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Add to Cart</span>
@@ -233,7 +307,50 @@ const ProductDetail: React.FC = () => {
               </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+            {/* Name (editable by admins) */}
+            {!isEditing && (
+              <div className="flex items-start gap-4 mb-4">
+                <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+                {user?.isAdmin && token && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="ml-3 text-sm bg-sky-100 text-sky-800 px-3 py-1 rounded hover:bg-sky-200"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            )}
+            {isEditing && (
+              <div className="space-y-3 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="mt-1 block w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Price (BDT)</label>
+                  <input
+                    type="number"
+                    value={editPrice as any}
+                    onChange={(e) => setEditPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                    className="mt-1 block w-40 border rounded-md px-3 py-2"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button onClick={handleAdminSave} disabled={saving} className="bg-blue-600 text-white px-4 py-2 rounded">
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button onClick={handleAdminCancel} disabled={saving} className="px-3 py-2 rounded border">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
             {user?.isAdmin && token && (
               <button onClick={handleDeleteProduct} className="mb-3 bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition">
                 Delete Product
@@ -321,7 +438,7 @@ const ProductDetail: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center space-x-2 text-gray-600">
                 <Truck className="h-4 w-4" />
-                <span>Free shipping over $500</span>
+                <span>Free shipping (conditional)</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600">
                 <Shield className="h-4 w-4" />

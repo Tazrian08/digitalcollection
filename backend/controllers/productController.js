@@ -230,3 +230,38 @@ exports.toggleStock = async (req, res) => {
     res.status(500).json({ message: 'Server error toggling stock' });
   }
 };
+
+// Admin: update only name and price
+exports.updateNamePrice = async (req, res) => {
+  try {
+    const { name, price } = req.body;
+
+    if (typeof name === 'undefined' && typeof price === 'undefined') {
+      return res.status(400).json({ message: 'Nothing to update' });
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    if (typeof name !== 'undefined') {
+      if (typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ message: 'Invalid name' });
+      }
+      product.name = name.trim();
+    }
+
+    if (typeof price !== 'undefined') {
+      const p = Number(price);
+      if (!Number.isFinite(p) || p < 0) {
+        return res.status(400).json({ message: 'Invalid price' });
+      }
+      product.price = p;
+    }
+
+    await product.save();
+    res.json(product);
+  } catch (error) {
+    console.error('updateNamePrice error:', error);
+    res.status(500).json({ message: 'Server error updating product' });
+  }
+};

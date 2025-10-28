@@ -15,6 +15,11 @@ app.use(express.json());
 
 // Serve images statically
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
+
+
+const conveyorRoutes = require('./routes/conveyorRoutes');
+app.use('/api/conveyor', conveyorRoutes);
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
