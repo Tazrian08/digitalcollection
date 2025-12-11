@@ -11,75 +11,75 @@ polished UI inspired by premium e-commerce sites.
 This project is fully deployed on a **Hostinger VPS (Ubuntu/Nginx/PM2)**
 with a custom domain.
 
-------------------------------------------------------------------------
+---
 
 ## 🚀 Live Demo
 
 **Frontend:** https://digitalcollectioncamera.com
 
-------------------------------------------------------------------------
+---
 
 ## 🛍️ Features
 
 ### **Frontend**
 
--   ⚡ Built with **React + TypeScript + Vite**
--   🎨 Modern UI using **TailwindCSS**
--   🖼️ Elegant product cards with hover animations\
--   🧭 Category browsing with multi-word category support\
--   🧩 Camera & lens **Builder System**\
--   🖥️ Responsive hero sections, sliders, and image carousels\
--   📂 Dynamic product pages with key features, special features, blue
-    tags\
--   🛒 Add to Cart flow with persistent localStorage data\
--   🔍 Search and category filtering
+- ⚡ Built with **React + TypeScript + Vite**
+- 🎨 Modern UI using **TailwindCSS**
+- 🖼️ Elegant product cards with hover animations\
+- 🧭 Category browsing with multi-word category support\
+- 🧩 Camera & lens **Builder System**\
+- 🖥️ Responsive hero sections, sliders, and image carousels\
+- 📂 Dynamic product pages with key features, special features, blue
+  tags\
+- 🛒 Add to Cart flow with persistent localStorage data\
+- 🔍 Search and category filtering
 
 ### **Backend**
 
--   🟢 **Node.js + Express**
--   🗄️ **MongoDB Atlas + Mongoose**
--   🔐 JWT-based authentication\
--   📦 Product, order, and transaction models\
--   📤 Image hosting support\
--   🔧 Admin endpoints for product CRUD
+- 🟢 **Node.js + Express**
+- 🗄️ **MongoDB Atlas + Mongoose**
+- 🔐 JWT-based authentication\
+- 📦 Product, order, and transaction models\
+- 📤 Image hosting support\
+- 🔧 Admin endpoints for product CRUD
 
 ### **Deployment**
 
--   🚀 Hostinger VPS\
--   🌐 Nginx reverse proxy\
--   🔁 PM2 process manager\
--   🔐 Let's Encrypt SSL
+- 🚀 Hostinger VPS\
+- 🌐 Nginx reverse proxy\
+- 🔁 PM2 process manager\
+- 🔐 Let's Encrypt SSL
 
-------------------------------------------------------------------------
+---
 
 ## 🧱 Tech Stack
 
 ### **Frontend**
 
--   React (TypeScript)
--   Vite\
--   TailwindCSS\
--   Lucide Icons\
--   React Router\
--   Axios
+- React (TypeScript)
+- Vite\
+- TailwindCSS\
+- Lucide Icons\
+- React Router\
+- Axios
 
 ### **Backend**
 
--   Node.js\
--   Express.js\
--   Mongoose\
--   MongoDB Atlas\
--   JSON Web Tokens (JWT)\
--   bcrypt
+- Node.js\
+- Express.js\
+- Mongoose\
+- MongoDB Atlas\
+- JSON Web Tokens (JWT)\
+- bcrypt
 
 ### **DevOps**
 
--   Nginx\
--   PM2\
--   Hostinger VPS\
--   GitHub
+- Nginx\
+- PM2\
+- Hostinger VPS\
+- GitHub
 
-------------------------------------------------------------------------
+---
 
 ## 📂 Folder Structure
 
@@ -102,24 +102,24 @@ with a custom domain.
         │   └── main.tsx
         └── index.html
 
-------------------------------------------------------------------------
+---
 
 ## 🔧 Installation & Setup
 
 ### **1️⃣ Clone the repository**
 
-``` bash
+```bash
 git clone https://github.com/Tazrian08/digitalcollection.git
 cd digitalcollection
 ```
 
-------------------------------------------------------------------------
+---
 
 ## ⚙️ Backend Setup (`/backend`)
 
 ### Install dependencies:
 
-``` bash
+```bash
 cd backend
 npm install
 ```
@@ -129,96 +129,94 @@ npm install
     MONGO_URI=your_mongodb_url
     JWT_SECRET=your_secret
     PORT=5000
-    CLOUDINARY_KEY=optional
-    CLOUDINARY_SECRET=optional
 
 ### Run backend:
 
-``` bash
+```bash
 npm run dev
 ```
 
-------------------------------------------------------------------------
+---
 
 ## 🎨 Frontend Setup (`/frontend`)
 
 ### Install dependencies:
 
-``` bash
+```bash
 cd frontend
 npm install
 ```
 
 ### Run frontend:
 
-``` bash
+```bash
 npm run dev
 ```
 
-------------------------------------------------------------------------
+---
 
 ## 🌍 Deployment (Hostinger VPS)
 
--   Clone repo\
--   Configure Nginx reverse proxy\
--   Build frontend and deploy to `/var/www/html`\
--   Run backend using PM2\
--   Apply SSL with Certbot\
--   Restart Nginx
+- Clone repo\
+- Configure Nginx reverse proxy\
+- Build frontend and deploy to `/var/www/html`\
+- Run backend using PM2\
+- Apply SSL with Certbot\
+- Restart Nginx
 
-------------------------------------------------------------------------
+---
 
 ## 📌 Core Features Breakdown
 
 ### 🔹 Product System
 
--   Name\
--   Category\
--   Images\
--   Key Features\
--   Special Features\
--   Blue Tags\
--   Price\
--   Stock\
--   Description
+- Name\
+- Category\
+- Images\
+- Key Features\
+- Special Features\
+- Blue Tags\
+- Price\
+- Stock\
+- Description
 
 ### 🔹 Product Builder
 
--   Select camera body\
--   Select compatible lens\
--   Multi-word category support\
--   Persistent localStorage logic
+- Select camera body\
+- Select compatible lens\
+- Multi-word category support\
+- Persistent localStorage logic
 
 ### 🔹 Cart & Checkout
 
--   Update quantity\
--   Remove items\
--   Cart persistence
+- Update quantity\
+- Remove items\
+- Cart persistence
 
 ### 🔹 Admin Dashboard
 
--   Add/Edit/Delete products\
--   View transactions\
--   Manage orders
+- Add/Edit/Delete products\
+- View transactions\
+- Manage orders
 
-------------------------------------------------------------------------
+---
 
 ## 📈 Roadmap
 
--   Payment integration\
--   User accounts\
--   Advanced search filters\
--   Admin UI dashboard\
--   Wishlist\
--   Reviews
+- Payment integration\
+- User accounts\
+- Advanced search filters\
+- Admin UI dashboard\
+- Wishlist\
+- Reviews
 
-------------------------------------------------------------------------
+---
 
 ## 🤝 Contributing
 
 Pull requests are welcome!
 
-------------------------------------------------------------------------
+---
 
 ## ✨ Author
 
