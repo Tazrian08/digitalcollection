@@ -201,23 +201,6 @@ npm run dev
 
 ---
 
-## 📈 Roadmap
-
-- Payment integration\
-- User accounts\
-- Advanced search filters\
-- Admin UI dashboard\
-- Wishlist\
-- Reviews
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome!
-
----
-
 ## ✨ Author
 
 **Tazrian Hossain**\
